@@ -24,7 +24,7 @@ import { useAnalyzeMealMutation } from "@/hooks/useMealAnalysis";
 import { useConfirmMealMutation } from "@/hooks/useMealConfirm";
 import { sumNutrition } from "@/types/nutrition";
 import { downscaleImageDataUrl } from "@/lib/utils/file";
-import { LOGIN_PATH, SIGNUP_PATH, isRealBackend } from "@/lib/catalyst/web-sdk";
+import { LOGIN_PATH, SIGNUP_PATH, hasRealApi, isRealBackendActive } from "@/lib/catalyst/web-sdk";
 import { useIsGuest } from "@/components/auth/AuthGate";
 import { clearPendingMeal, loadPendingMeal, savePendingMeal } from "@/lib/guest/pending-meal";
 
@@ -65,7 +65,7 @@ export default function SnapPage() {
 
   // Signed in with a meal analyzed earlier as a guest: pick up where they left off.
   useEffect(() => {
-    if (isGuest || !isRealBackend) return;
+    if (isGuest || !isRealBackendActive()) return;
     const pending = loadPendingMeal();
     if (pending) {
       restore(pending);
@@ -111,8 +111,9 @@ export default function SnapPage() {
       {
         type: mealType,
         source: "photo",
-        // Photos aren't stored by the real backend; the mock keeps one inline for the preview.
-        ...(isRealBackend ? {} : { photoUrl: capturedImage ?? undefined }),
+        // Photos are never stored for real users, and the public demo's sample data is shared
+        // between visitors — only a local mock build keeps the photo inline for the preview.
+        ...(hasRealApi ? {} : { photoUrl: capturedImage ?? undefined }),
         items,
         notes: notes || undefined,
         analysisId: analysisId ?? undefined,

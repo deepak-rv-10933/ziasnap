@@ -13,7 +13,8 @@ import { DeleteAccountDialog } from "@/features/privacy/DeleteAccountDialog";
 import { downloadFile, mealsToCsv } from "@/features/privacy/export";
 import { api } from "@/lib/api/client";
 import { useAccountQuery } from "@/hooks/useProfile";
-import { isRealBackend, signOut } from "@/lib/catalyst/web-sdk";
+import { signOut } from "@/lib/catalyst/web-sdk";
+import { useBackendMode } from "@/lib/catalyst/backend-mode";
 import { toDateKey } from "@/lib/utils/date";
 
 function ComingSoonAction({ label, description }: { label: string; description: string }) {
@@ -62,7 +63,8 @@ function ActionRow({
 }
 
 export default function SettingsPage() {
-  const accountQuery = useAccountQuery();
+  const isRealBackend = useBackendMode() === "real";
+  const accountQuery = useAccountQuery({ enabled: isRealBackend });
   const [exporting, setExporting] = useState<"json" | "csv" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 

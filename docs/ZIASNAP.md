@@ -5,6 +5,7 @@
 **Snap your plate. Know what's on it.** ZiaSnap turns a photo of a meal into an editable nutrition log and tracks it against your calorie and protein goals. It's built around Indian and South Indian food (idli, dosa, sambar, thali, biryani) rather than a generic Western calorie database.
 
 - **Live app:** https://ziasnap.onslate.com (Catalyst Development environment)
+- **Demo, no login:** https://ziasnap.onslate.com/demo opens a sample account ("Arjun") with two weeks of meals. Snap analysis there is the real Zia Agent; saved meals go into shared sample data that resets.
 - **Stack:** Next.js 15 + React 19 + TypeScript on Catalyst **Slate**; backend on Catalyst **Functions** (Advanced I/O) + **Data Store**; meal recognition by a **Zia Agent** (Zoho Agent Studio) through a Catalyst **Connection**; sign-in through Catalyst **Authentication**.
 
 ---

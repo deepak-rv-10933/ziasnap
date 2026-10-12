@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Leaf } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { FOOD_IMAGES } from "@/data/food-images";
-import { LOGIN_PATH, SIGNUP_PATH, isRealBackend, isSignedIn } from "@/lib/catalyst/web-sdk";
+import { LOGIN_PATH, SIGNUP_PATH, hasRealApi, isRealBackendActive, isSignedIn } from "@/lib/catalyst/web-sdk";
 import { api } from "@/lib/api/client";
 import { hasPendingMeal } from "@/lib/guest/pending-meal";
 
@@ -16,7 +16,7 @@ export default function WelcomePage() {
 
   // Catalyst's login redirects here; send a signed-in user on to their app.
   useEffect(() => {
-    if (!isRealBackend) return;
+    if (!isRealBackendActive()) return;
     let cancelled = false;
     (async () => {
       if (!(await isSignedIn()) || cancelled) return;
@@ -86,7 +86,7 @@ export default function WelcomePage() {
           transition={{ delay: 0.45, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           className="mt-10 flex flex-col gap-3"
         >
-          {isRealBackend ? (
+          {hasRealApi ? (
             <>
               {/* Catalyst's hosted pages live on this origin, outside the Next.js router. */}
               <Button render={<a href={SIGNUP_PATH} />} nativeButton={false} size="lg" className="w-full">
@@ -98,6 +98,12 @@ export default function WelcomePage() {
               <Button render={<a href={LOGIN_PATH} />} nativeButton={false} variant="ghost" size="lg" className="w-full">
                 Sign in
               </Button>
+              <Link
+                href="/demo"
+                className="text-center text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Or explore a demo account with sample data
+              </Link>
             </>
           ) : (
             <>

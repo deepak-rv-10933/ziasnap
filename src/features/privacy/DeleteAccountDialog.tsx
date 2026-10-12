@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api/client";
-import { isRealBackend, signOut } from "@/lib/catalyst/web-sdk";
+import { isRealBackendActive, signOut } from "@/lib/catalyst/web-sdk";
 
 const CONFIRM_WORD = "DELETE";
 
@@ -24,7 +24,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: { open: boolean; onO
     try {
       await api.deleteAccount();
       queryClient.clear();
-      if (isRealBackend) {
+      if (isRealBackendActive()) {
         // The account no longer exists; signing out clears the leftover session.
         // Full reload on purpose: drops every in-memory trace of the deleted account.
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination

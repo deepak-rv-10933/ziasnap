@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Leaf } from "@phosphor-icons/react";
-import { isRealBackend, isSignedIn, redirectToLogin } from "@/lib/catalyst/web-sdk";
+import { isSignedIn, redirectToLogin } from "@/lib/catalyst/web-sdk";
+import { useBackendMode } from "@/lib/catalyst/backend-mode";
 import { useProfileQuery } from "@/hooks/useProfile";
 
 interface AuthGateProps {
@@ -38,7 +39,9 @@ function GateSplash() {
  * (no NEXT_PUBLIC_ZIASNAP_API_URL) render straight through.
  */
 export function AuthGate({ children, requireOnboarding = true, allowGuest = false }: AuthGateProps) {
-  if (!isRealBackend) return <>{children}</>;
+  const mode = useBackendMode();
+  if (mode === "mock" || mode === "demo") return <>{children}</>;
+  if (mode === "pending") return <GateSplash />;
   return (
     <SignedInGate requireOnboarding={requireOnboarding} allowGuest={allowGuest}>
       {children}

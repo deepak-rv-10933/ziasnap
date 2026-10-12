@@ -22,7 +22,45 @@ declare global {
 
 /** The real backend is on when its URL is baked into the build; otherwise the app runs on mock data. */
 export const API_BASE_URL = process.env.NEXT_PUBLIC_ZIASNAP_API_URL?.replace(/\/+$/, "") ?? "";
-export const isRealBackend = API_BASE_URL !== "";
+/** Build-time: does this build know about the real backend at all? */
+export const hasRealApi = API_BASE_URL !== "";
+
+/**
+ * Public demo (`/demo`): a real-backend build can be switched, per browser,
+ * to Arjun's sample data on the mock routes — no account needed. Only meal
+ * analysis still goes to the real Zia Agent (via the guest analyzer).
+ */
+export const DEMO_STORAGE_KEY = "ziasnap.demo";
+
+export function isDemoMode(): boolean {
+  if (!hasRealApi || typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(DEMO_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Call-time check for handlers and the API client: real accounts and data in use right now? */
+export function isRealBackendActive(): boolean {
+  return hasRealApi && !isDemoMode();
+}
+
+export function enterDemo() {
+  try {
+    localStorage.setItem(DEMO_STORAGE_KEY, "1");
+  } catch {
+    /* storage blocked — the demo can't persist; the caller still navigates */
+  }
+}
+
+export function exitDemo() {
+  try {
+    localStorage.removeItem(DEMO_STORAGE_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
 
 export const LOGIN_PATH = "/__catalyst/auth/login";
 export const SIGNUP_PATH = "/__catalyst/auth/signup";

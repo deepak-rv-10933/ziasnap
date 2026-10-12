@@ -15,7 +15,14 @@ import type {
   UpdateMealInput,
   UserDataExport,
 } from "@/services/nutrition/NutritionRepository";
-import { API_BASE_URL, clearAuthToken, getAuthToken, isRealBackend, redirectToLogin } from "@/lib/catalyst/web-sdk";
+import {
+  API_BASE_URL,
+  clearAuthToken,
+  getAuthToken,
+  isDemoMode,
+  isRealBackendActive,
+  redirectToLogin,
+} from "@/lib/catalyst/web-sdk";
 import { daysAgoKey, toDateKey } from "@/lib/utils/date";
 
 export class ApiError extends Error {
@@ -32,16 +39,21 @@ export class ApiError extends Error {
  * the real backend configured, the same path is sent to the `ziasnap-api`
  * function instead, with the signed-in user's token attached.
  */
-async function request<T>(path: string, init?: RequestInit, options: { auth?: boolean } = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  options: { auth?: boolean; forceRealBackend?: boolean } = {},
+): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const useRealBackend = options.forceRealBackend || isRealBackendActive();
   let url = path;
-  if (isRealBackend) {
+  if (useRealBackend) {
     url = `${API_BASE_URL}${path.replace(/^\/api\/mock/, "")}`;
     if (options.auth !== false) headers.Authorization = await getAuthToken();
   }
 
   const response = await fetch(url, { ...init, headers: { ...headers, ...init?.headers } });
-  if (response.status === 401 && isRealBackend) {
+  if (response.status === 401 && useRealBackend && options.auth !== false) {
     clearAuthToken();
     redirectToLogin();
     throw new ApiError("Your session ended — please sign in again.", 401);
@@ -102,9 +114,10 @@ export const api = {
     notes?: string;
     guest?: boolean;
   }): Promise<ZiaMealAnalysisResult> => {
-    const asGuest = Boolean(guest && isRealBackend);
+    // The public demo has no account but still gets a real Zia analysis.
+    const asGuest = isDemoMode() || Boolean(guest && isRealBackendActive());
     const basePath = asGuest ? "/api/mock/guest/analyze" : "/api/mock/meal/analyze";
-    const auth = { auth: !asGuest };
+    const auth = asGuest ? { auth: false, forceRealBackend: true } : {};
 
     const started = await request<ZiaMealAnalysisResult>(
       basePath,

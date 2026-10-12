@@ -7,8 +7,8 @@ export function useProfileQuery(options?: { enabled?: boolean }) {
   return useQuery({ queryKey: queryKeys.profile, queryFn: api.getProfile, enabled: options?.enabled ?? true });
 }
 
-export function useAccountQuery() {
-  return useQuery({ queryKey: queryKeys.account, queryFn: api.getMe, staleTime: Infinity });
+export function useAccountQuery(options?: { enabled?: boolean }) {
+  return useQuery({ queryKey: queryKeys.account, queryFn: api.getMe, staleTime: Infinity, enabled: options?.enabled ?? true });
 }
 
 export function useUpdateProfileMutation() {

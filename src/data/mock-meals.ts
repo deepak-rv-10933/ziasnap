@@ -28,6 +28,8 @@ function pickTemplate(type: MealType, dayOffset: number): MealTemplate {
   return pool[dayOffset % pool.length];
 }
 
+const IST_OFFSET_MINUTES = 330;
+
 function buildMealAt(dayOffset: number, schedule: ScheduledMeal): Meal {
   const template = pickTemplate(schedule.type, dayOffset + (schedule.type === "snack" ? 1 : 0));
   const items = template.items.map((item) =>
@@ -38,9 +40,14 @@ function buildMealAt(dayOffset: number, schedule: ScheduledMeal): Meal {
     }),
   );
 
-  const loggedAt = new Date();
-  loggedAt.setDate(loggedAt.getDate() - dayOffset);
-  loggedAt.setHours(schedule.hour, schedule.minute, 0, 0);
+  // Arjun lives in India: pin the schedule to IST, not the server's timezone
+  // (Slate runs in UTC, which turned a 7:40 breakfast into 1:10 pm).
+  const istNow = new Date(Date.now() + IST_OFFSET_MINUTES * 60_000);
+  const loggedAt = new Date(
+    Date.UTC(istNow.getUTCFullYear(), istNow.getUTCMonth(), istNow.getUTCDate() - dayOffset, schedule.hour, schedule.minute) -
+      IST_OFFSET_MINUTES * 60_000,
+  );
+  const dateKey = new Date(loggedAt.getTime() + IST_OFFSET_MINUTES * 60_000).toISOString().slice(0, 10);
 
   return {
     id: generateId("meal"),
@@ -51,6 +58,7 @@ function buildMealAt(dayOffset: number, schedule: ScheduledMeal): Meal {
     items,
     totalNutrition: sumNutrition(items.map((item) => item.nutrition)),
     loggedAt: loggedAt.toISOString(),
+    dateKey,
     confirmedAt: loggedAt.toISOString(),
   };
 }
