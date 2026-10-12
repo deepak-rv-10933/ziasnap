@@ -23,10 +23,11 @@ import type {
   UserDataExport,
 } from "./NutritionRepository";
 
-const LATENCY_MS = 250;
+/** Was 250ms in Phase 1 to show off loading skeletons; the public demo runs on these routes now. */
+const LATENCY_MS = 0;
 
 function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
 }
 
 interface Store {

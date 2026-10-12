@@ -62,7 +62,7 @@ export default function NutritionProfilePage() {
           resetDraft();
           router.push(hasPendingMeal() ? "/snap" : "/home");
         },
-        onError: () => toast.error("Something went wrong — please try again."),
+        onError: () => toast.error("Something went wrong. Please try again."),
       },
     );
   };
@@ -123,7 +123,7 @@ export default function NutritionProfilePage() {
             rows={3}
           />
           <p className="mt-1.5 text-xs text-muted-foreground">
-            This is used as dietary context only — ZiaSnap doesn&apos;t diagnose or treat medical conditions.
+            This is used as dietary context only. ZiaSnap doesn&apos;t diagnose or treat medical conditions.
           </p>
         </div>
       </div>

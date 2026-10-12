@@ -22,9 +22,12 @@ export default function HomePage() {
   const profileQuery = useProfileQuery();
   const todayQuery = useTodayQuery();
   const recommendationsQuery = useRecommendationsQuery();
-  const historyQuery = useHistoryQuery();
   // "First run" = nothing logged in the History window (the default 14 days).
-  const isFirstRun = historyQuery.isSuccess && historyQuery.data.every((day) => day.meals.length === 0);
+  // Only worth asking once today turns out empty — most visits skip the call.
+  const todayIsEmpty = todayQuery.isSuccess && todayQuery.data.meals.length === 0;
+  const historyQuery = useHistoryQuery(undefined, undefined, { enabled: todayIsEmpty });
+  const isFirstRun =
+    todayIsEmpty && historyQuery.isSuccess && historyQuery.data.every((day) => day.meals.length === 0);
 
   const firstName = profileQuery.data?.personalDetails.name.split(" ")[0];
 

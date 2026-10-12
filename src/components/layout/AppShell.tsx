@@ -1,5 +1,6 @@
 import { DesktopSidebar } from "./DesktopSidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { PrefetchTabs } from "./PrefetchTabs";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export function AppShell({ children, rightPanel }: AppShellProps) {
       </div>
 
       <MobileBottomNav />
+      <PrefetchTabs />
     </div>
   );
 }

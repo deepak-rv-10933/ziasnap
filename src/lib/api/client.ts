@@ -56,7 +56,7 @@ async function request<T>(
   if (response.status === 401 && useRealBackend && options.auth !== false) {
     clearAuthToken();
     redirectToLogin();
-    throw new ApiError("Your session ended — please sign in again.", 401);
+    throw new ApiError("Your session ended. Please sign in again.", 401);
   }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -136,7 +136,7 @@ export const api = {
       );
       if (current.status === "completed") return current;
     }
-    throw new ApiError("Zia is taking longer than usual — please try again.", 504);
+    throw new ApiError("Zia is taking longer than usual. Please try again.", 504);
   },
 
   confirmMeal: (input: Omit<ConfirmMealInput, "userId">) => {

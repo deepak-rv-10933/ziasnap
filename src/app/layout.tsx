@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
-import Script from "next/script";
 import { Providers } from "./providers";
+import { CatalystScripts } from "@/components/auth/CatalystScripts";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -17,9 +17,9 @@ const body = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "ZiaSnap — Snap your food. Understand your nutrition.",
+  title: "ZiaSnap: Snap your food. Understand your nutrition.",
   description:
-    "ZiaSnap turns a photo of your meal into an editable nutrition estimate, tracks it against your calorie and protein goals, and recommends what to eat next — built around real Indian and South Indian food.",
+    "ZiaSnap turns a photo of your meal into an editable nutrition estimate, tracks it against your calorie and protein goals, and recommends what to eat next. It's built around real Indian and South Indian food.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icon.svg",
@@ -46,13 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {process.env.NEXT_PUBLIC_ZIASNAP_API_URL ? (
-          <>
-            {/* Catalyst Web SDK, then Slate's init.js, which configures it for this project (order matters). */}
-            <Script src="https://static.zohocdn.com/catalyst/sdk/js/4.6.1/catalystWebSDK.js" strategy="beforeInteractive" />
-            <Script src="/__catalyst/sdk/init.js" strategy="beforeInteractive" />
-          </>
-        ) : null}
+        <CatalystScripts />
         <Providers>{children}</Providers>
       </body>
     </html>

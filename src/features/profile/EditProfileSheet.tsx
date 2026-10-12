@@ -55,7 +55,7 @@ function EditProfileForm({ profile, onOpenChange }: EditProfileFormProps) {
           toast.success("Profile updated");
           onOpenChange(false);
         },
-        onError: () => toast.error("Couldn't save your changes — please try again."),
+        onError: () => toast.error("Couldn't save your changes. Please try again."),
       },
     );
   };

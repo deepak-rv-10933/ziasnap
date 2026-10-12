@@ -11,6 +11,6 @@ export function useAnalyzeMealMutation() {
     mutationFn: api.analyzeMeal,
     onMutate: () => startAnalyzing(),
     onSuccess: (result) => analysisSucceeded(result),
-    onError: (error: Error) => analysisFailed(error.message || "Analysis failed — please try again."),
+    onError: (error: Error) => analysisFailed(error.message || "Analysis failed. Please try again."),
   });
 }

@@ -75,7 +75,7 @@ export default function WelcomePage() {
             transition={{ delay: 0.35, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="mt-4 text-base leading-relaxed text-muted-foreground"
           >
-            Photograph a meal and Zia estimates the dishes, portions and nutrition — built around real Indian
+            Photograph a meal and Zia estimates the dishes, portions and nutrition. It&apos;s built around real Indian
             and South Indian food, not a generic calorie database.
           </motion.p>
         </div>
@@ -93,7 +93,7 @@ export default function WelcomePage() {
                 Get started
               </Button>
               <Button render={<Link href="/snap" />} nativeButton={false} variant="outline" size="lg" className="w-full">
-                Try a snap — no account needed
+                Try a snap, no account needed
               </Button>
               <Button render={<a href={LOGIN_PATH} />} nativeButton={false} variant="ghost" size="lg" className="w-full">
                 Sign in

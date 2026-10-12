@@ -62,7 +62,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       const retryAfter = guestRetryAfterSeconds(req);
       if (retryAfter > 0) {
         res.setHeader("Retry-After", String(retryAfter));
-        return sendJson(res, 429, { error: "You've tried a few snaps already — sign up free to keep going." });
+        return sendJson(res, 429, { error: "You've tried a few snaps already. Sign up free to keep going." });
       }
       const body = await readJsonBody<{ imageDataUrl?: string }>(req);
       const { buffer, mimeType } = decodeImageDataUrl(body.imageDataUrl);

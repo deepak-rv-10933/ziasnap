@@ -33,7 +33,7 @@ async function connectionHeaders(app: CatalystApp): Promise<Record<string, strin
     headers?: Record<string, string>;
   };
   if (!headers?.Authorization) {
-    throw new Error('Catalyst Connection "agents" returned no Authorization header — check it is connected.');
+    throw new Error('Catalyst Connection "agents" returned no Authorization header. Check it is connected.');
   }
   return headers;
 }
@@ -89,6 +89,12 @@ interface RawAgentItem {
 }
 
 const CONFIDENCE: ConfidenceLevel[] = ["high", "medium", "low"];
+
+/** House style: no em dashes in anything the app shows, including the agent's own words. */
+function plainText(value: string | undefined): string | undefined {
+  if (!value) return value;
+  return value.replace(/\s*[—–]\s*/g, ", ").replace(/,\s*,/g, ",").trim();
+}
 const UNITS: PortionUnit[] = ["piece", "bowl", "cup", "plate", "tbsp", "tsp", "gram", "serving", "glass"];
 
 function asConfidence(value: unknown): ConfidenceLevel {
@@ -108,8 +114,8 @@ function toFoodItem(raw: RawAgentItem): FoodItem {
   const unit = UNITS.includes(raw.portion?.unit as PortionUnit) ? (raw.portion?.unit as PortionUnit) : "serving";
   return {
     id: randomUUID(),
-    name: raw.name || "Unknown item",
-    portion: { quantity, unit, label: raw.portion?.label || `${quantity} ${unit}` },
+    name: plainText(raw.name) || "Unknown item",
+    portion: { quantity, unit, label: plainText(raw.portion?.label) || `${quantity} ${unit}` },
     nutrition,
     perUnitNutrition: {
       calories: nutrition.calories / quantity,
@@ -119,7 +125,7 @@ function toFoodItem(raw: RawAgentItem): FoodItem {
       fiberG: nutrition.fiberG / quantity,
     },
     confidence: asConfidence(raw.confidence),
-    preparationNote: raw.preparationNote || undefined,
+    preparationNote: plainText(raw.preparationNote) || undefined,
     isUserAdded: false,
     isEdited: false,
   };
@@ -161,7 +167,7 @@ export async function getMealAnalysis(app: CatalystApp, executionId: string): Pr
   try {
     parsed = JSON.parse(extractJson(body.data?.response ?? ""));
   } catch {
-    return { state: "failed", error: "Zia's answer wasn't readable — please try again." };
+    return { state: "failed", error: "Zia's answer wasn't readable. Please try again." };
   }
   return {
     state: "done",
@@ -169,7 +175,7 @@ export async function getMealAnalysis(app: CatalystApp, executionId: string): Pr
       status: "completed",
       detectedItems: Array.isArray(parsed.detectedItems) ? parsed.detectedItems.map(toFoodItem) : [],
       overallConfidence: asConfidence(parsed.overallConfidence),
-      notes: parsed.notes || undefined,
+      notes: plainText(parsed.notes) || undefined,
       analyzedAt: new Date().toISOString(),
     },
   };

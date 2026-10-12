@@ -20,13 +20,13 @@ const META: Record<
   },
   medium: {
     label: "Medium confidence",
-    description: "This looks about right — double-check portions that seem off.",
+    description: "This looks about right. Double-check portions that seem off.",
     icon: Circle,
     className: "bg-brand-turmeric-soft text-brand-tamarind dark:text-brand-turmeric",
   },
   low: {
     label: "Estimate",
-    description: "This is a rough estimate — please review before saving.",
+    description: "This is a rough estimate. Please review before saving.",
     icon: Question,
     className: "bg-muted text-muted-foreground",
   },

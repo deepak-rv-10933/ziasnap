@@ -46,7 +46,7 @@ export default function InsightsPage() {
 
   return (
     <div>
-      <PageHeader title="Insights" subtitle="Patterns from the last 7 days — and what to do about them." />
+      <PageHeader title="Insights" subtitle="Patterns from the last 7 days, and what to do about them." />
 
       {insightsQuery.isPending ? (
         <div className="flex flex-col gap-5">

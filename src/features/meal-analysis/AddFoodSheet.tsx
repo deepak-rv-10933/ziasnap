@@ -43,7 +43,7 @@ export function AddFoodSheet({ open, onOpenChange }: AddFoodSheetProps) {
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search foods — idli, dosa, paneer…"
+          placeholder="Search foods: idli, dosa, paneer…"
           className="pl-9"
           autoFocus
         />

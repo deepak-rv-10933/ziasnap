@@ -1,0 +1,178 @@
+[debug] [2026-10-12T12:19:48.004Z] : 
+[debug] [2026-10-12T12:19:48.005Z] : ----------------------------------------------------------------------
+[debug] [2026-10-12T12:19:48.006Z] : Command:      /Users/deepak-10933/.nvm/versions/node/v25.6.0/bin/node /Users/deepak-10933/.nvm/versions/node/v25.6.0/bin/catalyst deploy slate ziasnap -m Perf: non-blocking SDK, no mock delay, tab prefetch, in-place demo; remove em dashes -ni
+[debug] [2026-10-12T12:19:48.006Z] : CLI Version:  1.27.2
+[debug] [2026-10-12T12:19:48.006Z] : Platform:     darwin
+[debug] [2026-10-12T12:19:48.006Z] : Node Version: v25.6.0
+[debug] [2026-10-12T12:19:48.006Z] : Time:         Mon Oct 12 2026 17:49:48 GMT+0530 (India Standard Time)
+[debug] [2026-10-12T12:19:48.006Z] : ----------------------------------------------------------------------
+[debug] [2026-10-12T12:19:48.006Z] : 
+[debug] [2026-10-12T12:19:48.573Z] : > authorizing via signed-in user option
+[debug] [2026-10-12T12:19:48.573Z] : > command requires scopes: ["ZohoCatalyst.projects.ALL"]
+[debug] [2026-10-12T12:19:48.648Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/baas/v1/project/4186000001199009 
+
+[debug] [2026-10-12T12:19:49.527Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:19:49 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:19:49.531Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/baas/v1/project/4186000001199009/environment 
+
+[debug] [2026-10-12T12:19:50.393Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:19:50 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:19:50.401Z] : >>>> HTTP REQUEST : GET https://api.catalyst.zoho.com/slate/v1/project/4186000001199009/app 
+
+[debug] [2026-10-12T12:19:51.265Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:19:51 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:19:51.869Z] : Compressing archive "Archive"...
+[debug] [2026-10-12T12:20:21.754Z] : Compressed archive "Archive" (177856069 bytes) in 29884ms
+[debug] [2026-10-12T12:20:21.846Z] : >>>> HTTP REQUEST : POST https://api.catalyst.zoho.com/slate/v1/project/4186000001199009/app/upload 
+
+[debug] [2026-10-12T12:21:02.623Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:02 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:21:02.626Z] : 
+[info] [2026-10-12T12:21:02.626Z] : ✔ Slate(ziasnap): Deploy initiated!
+[info] [2026-10-12T12:21:02.628Z] : ℹ Build Url(ziasnap): https://console.catalyst.zoho.com/baas/747318386/project/4186000001199009/Development#/slate/app/1869000000009001/deployment/1869000000009003/overview
+[info] [2026-10-12T12:21:02.628Z] : 
+[debug] [2026-10-12T12:21:05.634Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50}
+
+[debug] [2026-10-12T12:21:16.790Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:16 GMT","content-type":"application/json;charset=utf-8","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:21:16.791Z] :   ────────────────────────── Build Output (ziasnap) ──────────────────────────
+[info] [2026-10-12T12:21:16.791Z] : 
+[info] [2026-10-12T12:21:16.792Z] :   Validating Job Config...
+[info] [2026-10-12T12:21:16.792Z] :   No image was specified by the user...
+[info] [2026-10-12T12:21:16.792Z] :   Loading slate default image..
+[debug] [2026-10-12T12:21:16.793Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:21:17.827Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:17 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:21:20.832Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50,"next_token":"d46925fc0d2720562802e839dbbc08cf"}
+
+[debug] [2026-10-12T12:21:32.115Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:31 GMT","content-type":"application/json;charset=utf-8","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:21:32.115Z] :   Image Loaded Successfully
+[info] [2026-10-12T12:21:32.115Z] :   Creating a secure environment to run scripts.
+[info] [2026-10-12T12:21:32.115Z] :   Beginning the execution of the provided scripts.
+[info] [2026-10-12T12:21:32.115Z] :   $ use-node 22
+[info] [2026-10-12T12:21:32.115Z] :   Switched to Node.js 22
+[info] [2026-10-12T12:21:32.115Z] :   $ slate-build
+[info] [2026-10-12T12:21:32.115Z] :   Loading the Slate deployer image v0.0.4
+[info] [2026-10-12T12:21:32.115Z] :   Configuring the node runtime 22
+[info] [2026-10-12T12:21:32.115Z] :   Initialization completed in 0.09s
+[info] [2026-10-12T12:21:32.116Z] :   Cloning the source code...
+[info] [2026-10-12T12:21:32.116Z] :   Cloning completed in 7.43s
+[info] [2026-10-12T12:21:32.116Z] :   Installing the dependencies using npm...
+[debug] [2026-10-12T12:21:32.116Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:21:33.171Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:33 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:21:36.176Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50,"next_token":"1a87eb78573015eb032ae7e21d33727a"}
+
+[debug] [2026-10-12T12:21:47.258Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:47 GMT","content-type":"application/json;charset=utf-8","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:21:47.259Z] :   npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+[info] [2026-10-12T12:21:47.264Z] :   npm notice
+[info] [2026-10-12T12:21:47.264Z] :   npm notice New major version of npm available! 10.9.2 -> 12.2.0
+[info] [2026-10-12T12:21:47.265Z] :   npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+[info] [2026-10-12T12:21:47.265Z] :   npm notice To update run: npm install -g npm@12.2.0
+[info] [2026-10-12T12:21:47.265Z] :   npm notice
+[info] [2026-10-12T12:21:47.265Z] :   added 626 packages, and audited 627 packages in 16s
+[info] [2026-10-12T12:21:47.265Z] :   245 packages are looking for funding
+[info] [2026-10-12T12:21:47.265Z] :   run `npm fund` for details
+[info] [2026-10-12T12:21:47.265Z] :   17 vulnerabilities (3 moderate, 13 high, 1 critical)
+[info] [2026-10-12T12:21:47.267Z] :   To address issues that do not require attention, run:
+[info] [2026-10-12T12:21:47.267Z] :   npm audit fix
+[info] [2026-10-12T12:21:47.267Z] :   To address all issues (including breaking changes), run:
+[info] [2026-10-12T12:21:47.267Z] :   npm audit fix --force
+[info] [2026-10-12T12:21:47.267Z] :   Run `npm audit` for details.
+[info] [2026-10-12T12:21:47.267Z] :   Installed dependencies in 23.59s
+[info] [2026-10-12T12:21:47.267Z] :   Building the application...
+[info] [2026-10-12T12:21:47.267Z] :   Installing the framework adapters...
+[debug] [2026-10-12T12:21:47.268Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:21:48.250Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:21:48 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:21:51.254Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50,"next_token":"b8d01de72d2fb255eaceb7e3ea4eaeb4"}
+
+[debug] [2026-10-12T12:22:02.311Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:22:02 GMT","content-type":"application/json;charset=utf-8","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:22:02.313Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:22:03.421Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:22:03 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:22:06.425Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50,"next_token":"b8d01de72d2fb255eaceb7e3ea4eaeb4"}
+
+[debug] [2026-10-12T12:22:17.447Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:22:17 GMT","content-type":"application/json;charset=utf-8","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","vary":"accept-encoding","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:22:17.448Z] :   Running the build command: npm run build
+[debug] [2026-10-12T12:22:17.449Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:22:18.457Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:22:18 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[debug] [2026-10-12T12:22:21.493Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240/logs 
+Query params: {"limit":50,"next_token":"ff98822c167d65902c2d730e108f4627"}
+
+[debug] [2026-10-12T12:59:09.830Z] : Build log fetch error (poll 6): API Error: socket hang up
+[debug] [2026-10-12T12:59:09.842Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003/build/1869000000020240 
+
+[debug] [2026-10-12T12:59:12.147Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:59:12 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:59:12.149Z] : 
+[info] [2026-10-12T12:59:12.149Z] :   ────────────────────────────────────────────────────────────────────────────
+[info] [2026-10-12T12:59:12.149Z] : 
+[info] [2026-10-12T12:59:12.149Z] : ✔ Slate(ziasnap): Build completed successfully!
+[debug] [2026-10-12T12:59:12.150Z] : >>>> HTTP REQUEST : GET https://zgraphql.zoho.com/slate/v1/project/4186000001199009/app/1869000000009001/deployment/1869000000009003 
+
+[debug] [2026-10-12T12:59:13.024Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:59:12 GMT","content-type":"application/vnd.catalyst.v2+json","transfer-encoding":"chunked","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"SAMEORIGIN","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+
+[info] [2026-10-12T12:59:13.025Z] : ℹ App Url(ziasnap): https://ziasnap.onslate.com
+[info] [2026-10-12T12:59:13.025Z] : 
+[info] [2026-10-12T12:59:13.025Z] : ✔ Catalyst Slate Deploy is Live!
+[error] [2026-10-12T12:59:13.028Z] : ✖ API Error: socket hang up
+[debug] [2026-10-12T12:59:13.028Z] : Error Stack: CatalystError: API Error: socket hang up
+    at API.<anonymous> (/Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/lib/internal/api.js:247:32)
+    at Generator.next (<anonymous>)
+    at /Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/lib/internal/api.js:41:71
+    at new Promise (<anonymous>)
+    at __awaiter (/Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/lib/internal/api.js:37:12)
+    at Request._callback (/Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/lib/internal/api.js:225:67)
+    at self.callback (/Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/node_modules/request/request.js:185:22)
+    at Request.emit (node:events:508:20)
+    at Request.onRequestError (/Users/deepak-10933/.nvm/versions/node/v25.6.0/lib/node_modules/zcatalyst-cli/node_modules/request/request.js:877:8)
+    at ClientRequest.emit (node:events:508:20)
+[debug] [2026-10-12T12:59:13.031Z] : Original Error: Error: socket hang up
+    at TLSSocket.socketOnEnd (node:_http_client:599:25)
+    at TLSSocket.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[debug] [2026-10-12T12:59:13.031Z] : Error Status: 500
+[info] [2026-10-12T12:59:13.032Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[debug] [2026-10-12T12:59:13.032Z] : EXEC ENDED with event: slate, message: success
+[debug] [2026-10-12T12:59:13.032Z] : TOTAL DURATION OF COMMAND EXEC : 2364462
+[debug] [2026-10-12T12:59:13.040Z] : >>>> HTTP REQUEST : POST https://api.catalyst.zoho.com/baas/v1/cli/logs 
+<request body omitted>
+
+[debug] [2026-10-12T12:59:14.242Z] : <<<< HTTP RESPONSE : 200
+Response Headers: {"server":"ZGS","date":"Mon, 12 Oct 2026 12:59:14 GMT","content-length":"0","connection":"close","x-content-type-options":"nosniff","cache-control":"private,no-cache,no-store,max-age=0,must-revalidate","pragma":"no-cache","expires":"Thu, 01 Jan 1970 00:00:00 GMT","x-frame-options":"DENY","strict-transport-security":"max-age=64072000; includeSubDomains; preload"}
+

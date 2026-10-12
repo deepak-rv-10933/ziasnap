@@ -68,7 +68,7 @@ class MockZiaMealAnalysisService implements ZiaMealAnalysisService {
       overallConfidence: overallConfidenceFrom(detectedItems.map((item) => item.confidence)),
       notes:
         template.items.some((item) => item.preparationNote !== undefined)
-          ? "Oil/ghee quantity is estimated — adjust it if this looks off."
+          ? "Oil/ghee quantity is estimated. Adjust it if this looks off."
           : undefined,
       analyzedAt: new Date().toISOString(),
     };

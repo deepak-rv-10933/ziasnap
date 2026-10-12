@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Leaf } from "@phosphor-icons/react";
 import { enterDemo, hasRealApi } from "@/lib/catalyst/web-sdk";
 
 /**
- * Public demo entry — https://ziasnap.onslate.com/demo. Switches this browser
- * to Arjun's sample account (no sign-in) and opens Today. A full navigation,
- * not a router push, so every module re-reads the mode from scratch.
+ * Public demo entry: https://ziasnap.onslate.com/demo. Switches this browser
+ * to Arjun's sample account (no sign-in) and opens Today in place. The mode
+ * is read at call/mount time, so no full reload is needed.
  */
 export default function DemoEntryPage() {
+  const router = useRouter();
+
   useEffect(() => {
     if (hasRealApi) enterDemo();
-    window.location.replace("/home");
-  }, []);
+    router.replace("/home");
+  }, [router]);
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-3" role="status">

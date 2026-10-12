@@ -73,7 +73,7 @@ export function buildWeeklyInsights(
       id: "insight-protein-consistency",
       title: "Protein has been inconsistent",
       observation: `You hit your protein target on ${proteinOnTargetDays} of ${daysLoggedCount} logged days.`,
-      suggestion: "Add a protein-rich side — eggs, curd, paneer or a lentil dish — to one more meal a day.",
+      suggestion: "Add a protein-rich side, like eggs, curd, paneer or a lentil dish, to one more meal a day.",
       severity: "attention",
     });
   } else if (proteinConsistencyPercent >= 80) {
@@ -91,7 +91,7 @@ export function buildWeeklyInsights(
       id: "insight-calorie-consistency",
       title: "Calories have stayed close to target",
       observation: `${calorieOnTargetDays} of ${daysLoggedCount} logged days landed within 15% of your calorie target.`,
-      suggestion: "This pace is working — keep logging meals as you have been.",
+      suggestion: "This pace is working. Keep logging meals as you have been.",
       severity: "positive",
     });
   } else if (daysLoggedCount > 0 && calorieConsistencyPercent < 40) {
@@ -99,7 +99,7 @@ export function buildWeeklyInsights(
       id: "insight-calorie-variance",
       title: "Calories have varied a lot day to day",
       observation: `Only ${calorieOnTargetDays} of ${daysLoggedCount} logged days were within 15% of your target.`,
-      suggestion: "Try logging snacks too — small unlogged bites often explain the swings.",
+      suggestion: "Try logging snacks too. Small unlogged bites often explain the swings.",
       severity: "attention",
     });
   }

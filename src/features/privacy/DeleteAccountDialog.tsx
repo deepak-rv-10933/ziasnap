@@ -53,7 +53,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: { open: boolean; onO
         <DialogHeader>
           <DialogTitle>Delete your account?</DialogTitle>
           <DialogDescription>
-            This permanently removes your profile, every meal you&apos;ve logged, and your sign-in. It can&apos;t be undone —
+            This permanently removes your profile, every meal you&apos;ve logged, and your sign-in. It can&apos;t be undone, so
             export your data first if you want a copy.
           </DialogDescription>
         </DialogHeader>

@@ -19,7 +19,7 @@ export function CalorieProgress({ consumed, target, goal }: CalorieProgressProps
 
   const statusText = isGainGoal
     ? isOver
-      ? `Goal reached — ${Math.round(Math.abs(remaining)).toLocaleString("en-IN")} kcal beyond`
+      ? `Goal reached, ${Math.round(Math.abs(remaining)).toLocaleString("en-IN")} kcal beyond`
       : `${Math.round(remaining).toLocaleString("en-IN")} kcal to reach today's goal`
     : isOver
       ? `${Math.round(Math.abs(remaining)).toLocaleString("en-IN")} kcal over target`

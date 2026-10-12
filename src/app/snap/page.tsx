@@ -69,7 +69,7 @@ export default function SnapPage() {
     const pending = loadPendingMeal();
     if (pending) {
       restore(pending);
-      toast.info("Here's the meal you snapped before signing up — confirm to save it.");
+      toast.info("Here's the meal you snapped before signing up. Confirm to save it.");
     }
   }, [isGuest, restore]);
 
@@ -125,7 +125,7 @@ export default function SnapPage() {
           reset();
           router.push("/home");
         },
-        onError: () => toast.error("Couldn't save this meal — please try again."),
+        onError: () => toast.error("Couldn't save this meal. Please try again."),
       },
     );
   };
@@ -148,14 +148,14 @@ export default function SnapPage() {
           >
             {isGuest ? (
               <p className="rounded-2xl border border-brand-turmeric/40 bg-brand-turmeric-soft px-4 py-3 text-sm text-foreground">
-                <span className="font-semibold">Try it free — no account needed.</span> Snap a meal and see what Zia
+                <span className="font-semibold">Try it free, no account needed.</span> Snap a meal and see what Zia
                 finds. Sign up when you want to save it and track your day.
               </p>
             ) : null}
             <CameraCapture onCapture={setCapturedImage} />
             <ImageUpload onCapture={setCapturedImage} />
             <p className="text-center text-xs text-muted-foreground">
-              Zia gives an AI estimate — you can review and adjust everything before it&apos;s saved.
+              Zia gives an AI estimate. You can review and adjust everything before it&apos;s saved.
             </p>
           </motion.div>
         ) : null}

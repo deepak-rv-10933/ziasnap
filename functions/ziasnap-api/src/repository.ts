@@ -92,8 +92,19 @@ export class CatalystNutritionRepository implements NutritionRepository {
     return rows[0];
   }
 
+  /** One repository per request: read (or create) the profile once, not once per caller. */
+  private profileRowCache?: Promise<Row>;
+
+  private ensureProfileRow(userId: string): Promise<Row> {
+    this.profileRowCache ??= this.loadOrCreateProfileRow(userId).catch((error) => {
+      this.profileRowCache = undefined;
+      throw error;
+    });
+    return this.profileRowCache;
+  }
+
   /** New accounts get a neutral starter profile; onboarding replaces it. */
-  private async ensureProfileRow(userId: string): Promise<Row> {
+  private async loadOrCreateProfileRow(userId: string): Promise<Row> {
     const existing = await this.profileRow(userId);
     if (existing) return existing;
 
@@ -182,7 +193,9 @@ export class CatalystNutritionRepository implements NutritionRepository {
           ? new Date().toISOString()
           : (current.onboardingCompletedAt ?? ""),
       });
-    return this.rowToProfile({ ...row, ...(updated as unknown as Row) });
+    const merged = { ...row, ...(updated as unknown as Row) };
+    this.profileRowCache = Promise.resolve(merged);
+    return this.rowToProfile(merged);
   }
 
   async getGoalTargets(userId: string): Promise<GoalTargets> {
@@ -200,6 +213,7 @@ export class CatalystNutritionRepository implements NutritionRepository {
       .datastore()
       .table(TABLES.profile)
       .updateRow({ ROWID: String(row.ROWID), TargetsJson: JSON.stringify(targets) });
+    this.profileRowCache = Promise.resolve({ ...row, TargetsJson: JSON.stringify(targets) });
     return targets;
   }
 

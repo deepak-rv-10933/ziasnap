@@ -48,7 +48,7 @@ export function NutritionPreferenceSelector({
       <div>
         <p className="mb-1 text-sm font-medium text-foreground">Nutrient priorities</p>
         <p className="mb-2 text-xs text-muted-foreground">
-          Optional — Zia will pay closer attention to these when suggesting meals.
+          Optional. Zia will pay closer attention to these when suggesting meals.
         </p>
         <ChipMultiSelect
           options={(Object.keys(NUTRIENT_LABEL) as NutrientPriority[]).map((value) => ({

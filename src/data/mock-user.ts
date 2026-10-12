@@ -21,7 +21,7 @@ export const MOCK_USER_PROFILE: UserProfile = {
     favoriteFoods: ["Dosa", "Chicken Curry", "Curd Rice", "Filter Coffee"],
     avoidFoods: ["Excess deep-fried snacks"],
     healthContext:
-      "Family history of high cholesterol — prefers meals with less oil and ghee where possible.",
+      "Family history of high cholesterol. Prefers meals with less oil and ghee where possible.",
     nutrientPriorities: ["protein", "fiber"],
   },
   onboardingCompletedAt: "2026-08-02T07:40:00.000+05:30",

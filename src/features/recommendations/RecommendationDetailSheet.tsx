@@ -32,7 +32,7 @@ export function RecommendationDetailSheet({ recommendation, onOpenChange }: Reco
           onOpenChange(false);
         },
         onError: () => {
-          toast.error("Couldn't log this meal — please try again.");
+          toast.error("Couldn't log this meal. Please try again.");
         },
       },
     );

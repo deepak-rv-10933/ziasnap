@@ -6,12 +6,12 @@ const STEPS = [
   {
     icon: Camera,
     title: "Photograph your plate",
-    body: "Shoot from above in good light, with the whole plate in frame — thali, dosa, a bowl of rice and dal, anything.",
+    body: "Shoot from above in good light, with the whole plate in frame: thali, dosa, a bowl of rice and dal, anything.",
   },
   {
     icon: PencilSimple,
     title: "Check Zia's estimate",
-    body: "Zia names each dish and guesses the portion. Fix anything it got wrong — 2 idlis, not 3; less oil — before saving.",
+    body: "Zia names each dish and guesses the portion. Fix anything it got wrong (2 idlis, not 3; less oil) before saving.",
   },
   {
     icon: CheckCircle,
