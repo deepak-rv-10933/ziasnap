@@ -1,0 +1,15 @@
+{
+	"deployment": {
+		"name": "ziasnap-meal-analyze",
+		"stack": "node22",
+		"type": "advancedio",
+		"env_variables": {
+			"ZIA_DC": "com",
+			"ZIA_ORG_ID": "893309102",
+			"ZIA_AGENT_ID": "9917000000286009"
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

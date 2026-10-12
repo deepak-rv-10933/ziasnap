@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "4186000001199009",
+      "name": "ziasnap",
+      "domain": {
+        "id": "10133879013",
+        "name": "ziasnap-747318386.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "747318386",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+	"deployment": {
+		"name": "ziasnap-api",
+		"stack": "node22",
+		"type": "advancedio",
+		"env_variables": {
+			"ZIA_DC": "com",
+			"ZIA_ORG_ID": "893309102",
+			"ZIA_AGENT_ID": "9917000000286009",
+			"PROJECT_TZ_OFFSET_MINUTES": "330"
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"name": "ziasnap-meal-analyze",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "deepak.rv+zes1@zohotest.com",
+	"dependencies": {
+		"busboy": "^1.6.0",
+		"zcatalyst-sdk-node": "latest"
+	}
+}

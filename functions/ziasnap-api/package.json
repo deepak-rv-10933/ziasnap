@@ -1,0 +1,9 @@
+{
+	"name": "ziasnap-api",
+	"version": "1.0.0",
+	"main": "index.js",
+	"description": "ZiaSnap login-required API. index.js is generated from src/ by `npm run build:api` at the repo root — do not edit it by hand.",
+	"dependencies": {
+		"zcatalyst-sdk-node": "latest"
+	}
+}

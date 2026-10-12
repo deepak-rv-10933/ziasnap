@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "targets": [
+      "ziasnap-meal-analyze",
+      "ziasnap-api"
+    ],
+    "ignore": [],
+    "source": "functions"
+  },
+  "slate": [
+    {
+      "name": "ziasnap",
+      "source": "/Users/deepak-10933/ziasnap"
+    }
+  ]
+}
