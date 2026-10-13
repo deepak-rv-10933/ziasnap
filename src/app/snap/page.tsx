@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { CameraCapture } from "@/components/capture/CameraCapture";
+import { LiveViewfinder } from "@/components/capture/LiveViewfinder";
+import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { ImageUpload } from "@/components/capture/ImageUpload";
 import { ImagePreview } from "@/components/capture/ImagePreview";
 import { CaptureControls } from "@/components/capture/CaptureControls";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "@phosphor-icons/react";
 import { AddFoodSheet } from "@/features/meal-analysis/AddFoodSheet";
+import { SmartConfirmation } from "@/features/meal-analysis/SmartConfirmation";
 import { useMealCaptureStore } from "@/stores/useMealCaptureStore";
 import { useAnalyzeMealMutation } from "@/hooks/useMealAnalysis";
 import { useConfirmMealMutation } from "@/hooks/useMealConfirm";
@@ -91,6 +93,8 @@ export default function SnapPage() {
   };
 
   const totalNutrition = sumNutrition(items.map((item) => item.nutrition));
+  // The reveal: the plate's total counts up from zero as Zia's items land.
+  const revealedCalories = useAnimatedNumber(status === "analyzed" ? totalNutrition.calories : 0, { duration: 1.1 });
 
   /** Guest: keep the reviewed meal in this browser, then create the account. */
   const handleSaveAsGuest = async (destination: string) => {
@@ -152,7 +156,7 @@ export default function SnapPage() {
                 finds. Sign up when you want to save it and track your day.
               </p>
             ) : null}
-            <CameraCapture onCapture={setCapturedImage} />
+            <LiveViewfinder onCapture={setCapturedImage} />
             <ImageUpload onCapture={setCapturedImage} />
             <p className="text-center text-xs text-muted-foreground">
               Zia gives an AI estimate. You can review and adjust everything before it&apos;s saved.
@@ -211,14 +215,22 @@ export default function SnapPage() {
                 </motion.div>
               ) : null}
               <div>
-                <p className="font-display text-lg font-semibold text-foreground">
+                <p className="text-sm font-medium text-muted-foreground">
                   Zia found {items.length} item{items.length === 1 ? "" : "s"}
                 </p>
-                <p className="text-sm text-muted-foreground">Review and adjust anything before saving.</p>
+                <p className="font-display text-3xl font-semibold tabular-nums tracking-tight text-foreground">
+                  {Math.round(revealedCalories).toLocaleString("en-IN")}
+                  <span className="ml-1 text-base font-medium text-muted-foreground">kcal</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {Math.round(totalNutrition.proteinG)}g protein · review anything before saving
+                </p>
               </div>
             </div>
 
             {overallConfidence ? <AIConfidenceIndicator confidence={overallConfidence} note={analysisNotes ?? undefined} /> : null}
+
+            <SmartConfirmation />
 
             <MealTypeSelector value={mealType} onChange={setMealType} />
 

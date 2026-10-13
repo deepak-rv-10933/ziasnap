@@ -11,8 +11,8 @@ interface MealCardProps {
 export function MealCard({ meal }: MealCardProps) {
   return (
     <Link
-      href={`/meal/${meal.id}`}
-      className="flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-turmeric/50"
+      href={`/meal?id=${meal.id}`}
+      className="pressable flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(16,26,35,0.04)] hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-turmeric/50"
     >
       <MealPhoto
         src={meal.photoUrl}

@@ -1,4 +1,4 @@
-import type { NutrientPriority, RecommendationReasonTag } from "@/types";
+import type { FastingModeType, NutrientPriority, RecommendationReasonTag } from "@/types";
 
 export interface RecommendationTemplateItem {
   catalogId: string;
@@ -16,9 +16,130 @@ export interface RecommendationTemplate {
   items: RecommendationTemplateItem[];
   addressesNutrientPriorities: NutrientPriority[];
   baseReasonTags: RecommendationReasonTag[];
+  /** Set only on mode templates: they're suggested during these modes and never outside them. */
+  modes?: FastingModeType[];
 }
 
+const VRAT: FastingModeType[] = ["navratri", "ekadashi"];
+
 export const RECOMMENDATION_TEMPLATES: RecommendationTemplate[] = [
+  {
+    id: "vrat-sabudana-buttermilk",
+    name: "Sabudana Khichdi + Buttermilk",
+    description: "The classic vrat plate: filling, gentle, and made without grains, onion or garlic.",
+    photoKey: "emptyStatePhoto",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "sabudana-khichdi" }, { catalogId: "buttermilk" }],
+    addressesNutrientPriorities: [],
+    baseReasonTags: ["fasting_friendly"],
+    modes: VRAT,
+  },
+  {
+    id: "vrat-kuttu-aloo-curd",
+    name: "2 Kuttu Rotis + Vrat Aloo + Curd",
+    description: "Buckwheat rotis with a no-onion potato sabzi; the curd adds protein that vrat meals often lack.",
+    photoKey: "roti",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "kuttu-roti", quantity: 2 }, { catalogId: "vrat-aloo" }, { catalogId: "curd" }],
+    addressesNutrientPriorities: ["protein", "fiber"],
+    baseReasonTags: ["fasting_friendly", "high_protein"],
+    modes: VRAT,
+  },
+  {
+    id: "vrat-samak-aloo",
+    name: "Samak Rice + Vrat Aloo",
+    description: "Barnyard millet stands in for rice, so you get a proper meal on a fasting day.",
+    photoKey: "steamedRice",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "samak-rice" }, { catalogId: "vrat-aloo" }],
+    addressesNutrientPriorities: ["fiber"],
+    baseReasonTags: ["fasting_friendly"],
+    modes: VRAT,
+  },
+  {
+    id: "vrat-makhana-fruit",
+    name: "Roasted Makhana + Fruit Bowl",
+    description: "A light vrat snack that keeps you going between meals.",
+    photoKey: "banana",
+    cuisine: "global",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "makhana" }, { catalogId: "fruit-bowl" }],
+    addressesNutrientPriorities: ["fiber"],
+    baseReasonTags: ["fasting_friendly"],
+    modes: VRAT,
+  },
+  {
+    id: "vrat-sweet-potato",
+    name: "Sweet Potato Chaat + Buttermilk",
+    description: "Tangy, satisfying and vrat-friendly.",
+    photoKey: "emptyStatePhoto",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "sweet-potato-chaat" }, { catalogId: "buttermilk" }],
+    addressesNutrientPriorities: ["fiber"],
+    baseReasonTags: ["fasting_friendly"],
+    modes: VRAT,
+  },
+  {
+    id: "iftar-dates-chicken",
+    name: "Iftar: Dates + Fruit + Chicken Curry + Roti",
+    description: "Break the fast with dates and fruit, then a balanced plate with protein.",
+    photoKey: "chickenCurry",
+    cuisine: "north_indian",
+    isVegetarian: false,
+    containsEgg: false,
+    items: [{ catalogId: "dates" }, { catalogId: "fruit-bowl" }, { catalogId: "chicken-curry" }, { catalogId: "roti", quantity: 2 }],
+    addressesNutrientPriorities: ["protein"],
+    baseReasonTags: ["fasting_friendly", "high_protein"],
+    modes: ["ramadan"],
+  },
+  {
+    id: "iftar-dates-dal",
+    name: "Iftar: Dates + Fruit + Dal + Roti",
+    description: "Dates to start, then lentils and rotis for steady energy through the evening.",
+    photoKey: "dal",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "dates" }, { catalogId: "fruit-bowl" }, { catalogId: "dal" }, { catalogId: "roti", quantity: 2 }],
+    addressesNutrientPriorities: ["protein", "fiber"],
+    baseReasonTags: ["fasting_friendly"],
+    modes: ["ramadan"],
+  },
+  {
+    id: "suhoor-oats-eggs",
+    name: "Suhoor: Oats + 2 Eggs + Dates",
+    description: "Slow-release carbs and protein before dawn keep you fuller through the fast.",
+    photoKey: "boiledEgg",
+    cuisine: "global",
+    isVegetarian: false,
+    containsEgg: true,
+    items: [{ catalogId: "oats-porridge" }, { catalogId: "egg-boiled", quantity: 2 }, { catalogId: "dates" }],
+    addressesNutrientPriorities: ["protein", "fiber"],
+    baseReasonTags: ["fasting_friendly", "high_protein"],
+    modes: ["ramadan"],
+  },
+  {
+    id: "suhoor-paneer-roti",
+    name: "Suhoor: Paneer + Roti + Curd",
+    description: "A protein-rich vegetarian suhoor that holds you until iftar.",
+    photoKey: "paneerCurry",
+    cuisine: "north_indian",
+    isVegetarian: true,
+    containsEgg: false,
+    items: [{ catalogId: "paneer-curry" }, { catalogId: "roti", quantity: 2 }, { catalogId: "curd" }],
+    addressesNutrientPriorities: ["protein", "calcium"],
+    baseReasonTags: ["fasting_friendly", "high_protein"],
+    modes: ["ramadan"],
+  },
   {
     id: "idli-sambar-eggs",
     name: "2 Idlis + Sambar + Curd + 2 Eggs",

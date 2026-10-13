@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { HeroCardSkeleton, TextLineSkeleton } from "@/components/feedback/Skeletons";
 import { ErrorState } from "@/components/feedback/ErrorState";
 import { EditProfileSheet } from "@/features/profile/EditProfileSheet";
+import { WeightTrendCard } from "@/features/tracking/WeightTrendCard";
+import { FastingModeCard } from "@/features/modes/FastingModeCard";
 import { useProfileQuery } from "@/hooks/useProfile";
 import { useGoalTargetsQuery, useRecalculateGoalsMutation } from "@/hooks/useGoals";
 import { ACTIVITY_LABEL, CUISINE_LABEL, DIETARY_LABEL } from "@/lib/utils/profile-labels";
@@ -69,23 +71,9 @@ export default function ProfilePage() {
         </Button>
       </section>
 
-      <section>
-        <SectionHeader title="Weight" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-border/70 bg-card px-4 py-3">
-            <p className="font-display text-xl font-semibold tabular-nums text-foreground">
-              {personalDetails.currentWeightKg} kg
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">Current</p>
-          </div>
-          <div className="rounded-2xl border border-border/70 bg-card px-4 py-3">
-            <p className="font-display text-xl font-semibold tabular-nums text-foreground">
-              {personalDetails.targetWeightKg} kg
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">Target</p>
-          </div>
-        </div>
-      </section>
+      <WeightTrendCard />
+
+      <FastingModeCard />
 
       <section>
         <SectionHeader title="Preferences" />

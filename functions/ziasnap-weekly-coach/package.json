@@ -1,0 +1,9 @@
+{
+	"name": "ziasnap-weekly-coach",
+	"version": "1.0.0",
+	"main": "index.js",
+	"author": "deepak.rv+zes1@zohotest.com",
+	"dependencies": {
+		"zcatalyst-sdk-node": "latest"
+	}
+}

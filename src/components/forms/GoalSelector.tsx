@@ -36,7 +36,7 @@ export function GoalSelector({ value, onChange }: GoalSelectorProps) {
             <span
               className={cn(
                 "flex size-10 shrink-0 items-center justify-center rounded-xl",
-                selected ? "bg-brand-turmeric text-[#211c16]" : "bg-muted text-muted-foreground",
+                selected ? "bg-brand-turmeric text-[#1a1206]" : "bg-muted text-muted-foreground",
               )}
             >
               <Icon weight="bold" className="size-5" />

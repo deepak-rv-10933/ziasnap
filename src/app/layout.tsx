@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     "ZiaSnap turns a photo of your meal into an editable nutrition estimate, tracks it against your calorie and protein goals, and recommends what to eat next. It's built around real Indian and South Indian food.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icons/icon-192.png", sizes: "192x192" }],
+    apple: "/icons/apple-touch-icon.png",
   },
   appleWebApp: {
     capable: true,
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f3ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#17130f" },
+    { media: "(prefers-color-scheme: light)", color: "#eef2f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a1016" },
   ],
   width: "device-width",
   initialScale: 1,

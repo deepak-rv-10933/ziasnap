@@ -17,8 +17,8 @@ export function DemoBanner() {
     <div className="sticky top-0 z-40 border-b border-brand-turmeric/40 bg-brand-turmeric-soft px-4 py-2 text-xs text-foreground">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-1">
         <p>
-          <span className="font-semibold">Demo account</span> with sample meals. Snap analysis is real Zia; saved meals
-          are shared sample data and reset regularly.
+          <span className="font-semibold">Demo account</span> with sample meals. Zia&apos;s analysis is real; your changes
+          stay on this device and reset each day.
         </p>
         <div className="flex items-center gap-3 font-semibold">
           <button type="button" onClick={() => leave(SIGNUP_PATH)} className="text-brand-tamarind underline-offset-4 hover:underline dark:text-brand-turmeric">

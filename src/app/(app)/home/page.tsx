@@ -15,6 +15,10 @@ import { useRecommendationsQuery } from "@/hooks/useRecommendations";
 import { useHistoryQuery } from "@/hooks/useHistory";
 import { greetingForHour } from "@/lib/utils/greeting";
 import { FirstSnapGuide } from "@/features/first-run/FirstSnapGuide";
+import { HydrationCard } from "@/features/tracking/HydrationCard";
+import { QuickLogRow } from "@/features/tracking/QuickLogRow";
+import { StreakChip } from "@/features/tracking/StreakChip";
+import { FastingModeBanner } from "@/features/modes/FastingModeBanner";
 
 export default function HomePage() {
   const [selectedRecommendation, setSelectedRecommendation] = useState<MealRecommendation | null>(null);
@@ -33,9 +37,12 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col gap-7">
-      <div>
-        <p className="text-sm text-muted-foreground">{greetingForHour(new Date().getHours())}{firstName ? `, ${firstName}` : ""}</p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">Today</h1>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-sm text-muted-foreground">{greetingForHour(new Date().getHours())}{firstName ? `, ${firstName}` : ""}</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">Today</h1>
+        </div>
+        <StreakChip />
       </div>
 
       {todayQuery.isPending || profileQuery.isPending ? (
@@ -46,7 +53,9 @@ export default function HomePage() {
         <TodayHeroCard summary={todayQuery.data} goal={profileQuery.data.goal} />
       )}
 
-      {isFirstRun ? <FirstSnapGuide /> : null}
+      <FastingModeBanner />
+
+      {isFirstRun ? <FirstSnapGuide /> : <QuickLogRow />}
 
       <section className={isFirstRun ? "hidden" : undefined}>
         <SectionHeader title="Today's meals" />
@@ -61,6 +70,8 @@ export default function HomePage() {
           <MealTimeline meals={todayQuery.data.meals} emptyMessage="Snap your first meal of the day to get started." />
         )}
       </section>
+
+      <HydrationCard />
 
       <section>
         <SectionHeader title="What should you eat next?" actionHref="/recommendations" />

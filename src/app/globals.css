@@ -5,6 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-chart-trend: var(--chart-trend);
+  --color-meal-breakfast: var(--meal-breakfast);
+  --color-meal-lunch: var(--meal-lunch);
+  --color-meal-snack: var(--meal-snack);
+  --color-meal-dinner: var(--meal-dinner);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
@@ -65,103 +70,120 @@
 }
 
 :root {
-  --background: #f6f3ec;
-  --foreground: #211c16;
-  --card: #fffcf7;
-  --card-foreground: #211c16;
-  --popover: #fffcf7;
-  --popover-foreground: #211c16;
+  /* "Steel thali": cool stainless-steel neutrals (the plate Indian meals are
+     served on), turmeric for action, curry-leaf green for protein and success,
+     deep night-steel for the hero. Chart colours validated with the dataviz
+     validator against --card (trend) and the hero surface (meal segments). */
+  --chart-trend: #b8641a;
+  --meal-breakfast: #c98500;
+  --meal-lunch: #3987e5;
+  --meal-snack: #d95926;
+  --meal-dinner: #9085e9;
+  --hero-from: #1d4058;
+  --hero-to: #0e1f2d;
 
-  --primary: #d69a2d;
-  --primary-foreground: #211c16;
-  --secondary: #eee7d6;
-  --secondary-foreground: #211c16;
-  --muted: #ece6d9;
-  --muted-foreground: #6b5f4f;
-  --accent: #f0e4c8;
-  --accent-foreground: #211c16;
+  --background: #eef2f5;
+  --foreground: #101a23;
+  --card: #ffffff;
+  --card-foreground: #101a23;
+  --popover: #ffffff;
+  --popover-foreground: #101a23;
 
-  --destructive: #b23a2e;
+  --primary: #f2a81d;
+  --primary-foreground: #1a1206;
+  --secondary: #e4eaef;
+  --secondary-foreground: #101a23;
+  --muted: #e6ecf1;
+  --muted-foreground: #586675;
+  --accent: #fdf0d2;
+  --accent-foreground: #101a23;
+
+  --destructive: #c8372a;
   --destructive-foreground: #ffffff;
 
-  --border: #e7e0d2;
-  --input: #e7e0d2;
-  --ring: #d69a2d;
+  --border: #dbe3ea;
+  --input: #d3dce4;
+  --ring: #f2a81d;
 
-  --chart-1: #d69a2d;
-  --chart-2: #4b6b3a;
-  --chart-3: #6b3a2e;
-  --chart-4: #b23a2e;
-  --chart-5: #8a7554;
+  --chart-1: #f2a81d;
+  --chart-2: #237a4b;
+  --chart-3: #17344a;
+  --chart-4: #c8372a;
+  --chart-5: #7b8a99;
 
   --radius: 1rem;
 
-  --sidebar: #fffcf7;
-  --sidebar-foreground: #211c16;
-  --sidebar-primary: #d69a2d;
-  --sidebar-primary-foreground: #211c16;
-  --sidebar-accent: #f0e4c8;
-  --sidebar-accent-foreground: #211c16;
-  --sidebar-border: #e7e0d2;
-  --sidebar-ring: #d69a2d;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #101a23;
+  --sidebar-primary: #f2a81d;
+  --sidebar-primary-foreground: #1a1206;
+  --sidebar-accent: #fdf0d2;
+  --sidebar-accent-foreground: #101a23;
+  --sidebar-border: #dbe3ea;
+  --sidebar-ring: #f2a81d;
 
-  --brand-turmeric: #d69a2d;
-  --brand-turmeric-soft: #f5e6c2;
-  --brand-tamarind: #6b3a2e;
-  --brand-tamarind-soft: #ece0da;
-  --brand-leaf: #3e5a2f;
-  --brand-leaf-soft: #e4ecdb;
-  --brand-chili: #b23a2e;
-  --brand-chili-soft: #f5dcd8;
+  /* Kept the brand token names so every component picks up the new palette. */
+  --brand-turmeric: #f2a81d;
+  --brand-turmeric-soft: #fdf0d2;
+  --brand-tamarind: #17344a;
+  --brand-tamarind-soft: #dde8f0;
+  --brand-leaf: #237a4b;
+  --brand-leaf-soft: #dcf0e3;
+  --brand-chili: #c8372a;
+  --brand-chili-soft: #fbe1dc;
 }
 
 .dark {
-  --background: #17130f;
-  --foreground: #f3eee3;
-  --card: #221c15;
-  --card-foreground: #f3eee3;
-  --popover: #221c15;
-  --popover-foreground: #f3eee3;
+  --chart-trend: #c9842b;
+  --hero-from: #183650;
+  --hero-to: #0b1823;
 
-  --primary: #d69a2d;
-  --primary-foreground: #211c16;
-  --secondary: #2e2019;
-  --secondary-foreground: #f3eee3;
-  --muted: #2a2319;
-  --muted-foreground: #b8ac98;
-  --accent: #33291a;
-  --accent-foreground: #f3eee3;
+  --background: #0a1016;
+  --foreground: #e8eef4;
+  --card: #121a22;
+  --card-foreground: #e8eef4;
+  --popover: #141d26;
+  --popover-foreground: #e8eef4;
 
-  --destructive: #c9483a;
+  --primary: #f2a81d;
+  --primary-foreground: #1a1206;
+  --secondary: #1a2530;
+  --secondary-foreground: #e8eef4;
+  --muted: #18222c;
+  --muted-foreground: #8fa0b0;
+  --accent: #2a2414;
+  --accent-foreground: #e8eef4;
+
+  --destructive: #e0574a;
   --destructive-foreground: #ffffff;
 
-  --border: color-mix(in oklch, white 12%, transparent);
-  --input: color-mix(in oklch, white 16%, transparent);
-  --ring: #d69a2d;
+  --border: color-mix(in oklch, white 10%, transparent);
+  --input: color-mix(in oklch, white 14%, transparent);
+  --ring: #f2a81d;
 
-  --chart-1: #d69a2d;
-  --chart-2: #7fa968;
-  --chart-3: #c98a70;
-  --chart-4: #c9483a;
-  --chart-5: #a8967a;
+  --chart-1: #f2a81d;
+  --chart-2: #4fb27a;
+  --chart-3: #7fb2d8;
+  --chart-4: #e0574a;
+  --chart-5: #8fa0b0;
 
-  --sidebar: #1c1712;
-  --sidebar-foreground: #f3eee3;
-  --sidebar-primary: #d69a2d;
-  --sidebar-primary-foreground: #211c16;
-  --sidebar-accent: #2e2019;
-  --sidebar-accent-foreground: #f3eee3;
-  --sidebar-border: color-mix(in oklch, white 12%, transparent);
-  --sidebar-ring: #d69a2d;
+  --sidebar: #0e151c;
+  --sidebar-foreground: #e8eef4;
+  --sidebar-primary: #f2a81d;
+  --sidebar-primary-foreground: #1a1206;
+  --sidebar-accent: #1a2530;
+  --sidebar-accent-foreground: #e8eef4;
+  --sidebar-border: color-mix(in oklch, white 10%, transparent);
+  --sidebar-ring: #f2a81d;
 
-  --brand-turmeric: #e0a83c;
-  --brand-turmeric-soft: #3a2e17;
-  --brand-tamarind: #c98a70;
-  --brand-tamarind-soft: #33251e;
-  --brand-leaf: #7fa968;
-  --brand-leaf-soft: #26301f;
-  --brand-chili: #d3594a;
-  --brand-chili-soft: #34211d;
+  --brand-turmeric: #f2a81d;
+  --brand-turmeric-soft: #3a2c0c;
+  --brand-tamarind: #1b3a52;
+  --brand-tamarind-soft: #16283a;
+  --brand-leaf: #4fb27a;
+  --brand-leaf-soft: #12301f;
+  --brand-chili: #e0574a;
+  --brand-chili-soft: #3a1712;
 }
 
 @layer base {
@@ -212,5 +234,21 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+
+/* Press feedback: every tappable surface gives under the finger. */
+@utility pressable {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background-color 160ms ease, box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active {
+    transform: none;
   }
 }

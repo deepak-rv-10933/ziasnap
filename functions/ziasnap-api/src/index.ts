@@ -2,13 +2,24 @@ import type { IncomingMessage, ServerResponse } from "http";
 import catalyst from "zcatalyst-sdk-node";
 import type { CatalystApp } from "zcatalyst-sdk-node/lib/catalyst-app";
 import type { MealType } from "@/types";
-import type { ConfirmMealInput, ProfileUpdateInput, UpdateMealInput } from "@/services/nutrition/NutritionRepository";
+import type {
+  ConfirmMealInput,
+  FavoriteInput,
+  ProfileUpdateInput,
+  UpdateMealInput,
+  WaterInput,
+  WeightInput,
+} from "@/services/nutrition/NutritionRepository";
 import { requireAccount } from "./auth";
 import { assertDateKey } from "./db";
 import { HttpError, handleLocalCors, readJsonBody, sendJson } from "./http";
 import { decodeImageDataUrl } from "./image";
 import { CatalystNutritionRepository } from "./repository";
 import { getMealAnalysis, startMealAnalysis } from "./zia";
+import { pollCoach, startCoach } from "./coach";
+import type { CoachTask, MealType as CoachMealType } from "@/types";
+import { menuContext, planContext } from "@/services/coach/context";
+import { buildWeeklyContext } from "./coach-context";
 import { issueAnalysisToken, readAnalysisToken } from "./analysis-token";
 import { guestRetryAfterSeconds } from "./rate-limit";
 
@@ -25,13 +36,52 @@ function analyzingResponse(analysisId: string) {
   };
 }
 
-async function pollAnalysis(res: ServerResponse, app: CatalystApp, token: string, owner: string) {
+const COACH_TASKS: CoachTask[] = ["plan", "menu", "weekly"];
+
+/** Polls a Coach task; for a signed-in weekly recap, also stores it. */
+async function respondCoachPoll(
+  res: ServerResponse,
+  app: CatalystApp,
+  task: CoachTask,
+  token: string,
+  owner: string,
+  query: URLSearchParams,
+  repo?: CatalystNutritionRepository,
+) {
+  const executionId = readAnalysisToken(token, `${owner}:${task}`);
+  if (!executionId) return sendJson(res, 404, { error: "Not found" });
+  const week = query.get("weekStart") && query.get("weekEnd")
+    ? { start: assertDateKey(query.get("weekStart") ?? undefined, "weekStart"), end: assertDateKey(query.get("weekEnd") ?? undefined, "weekEnd") }
+    : undefined;
+  const state = await pollCoach(app, task, executionId, week);
+  if (state.state === "running") return sendJson(res, 200, { status: "working", token });
+  if (state.state === "failed") return sendJson(res, 502, { error: state.error });
+  if (task === "weekly" && repo) {
+    await repo.saveWeeklyRecap(owner, state.result as import("@/types").WeeklyRecap).catch((error) => console.error("Recap save failed", error));
+  }
+  return sendJson(res, 200, { status: "done", token, result: state.result });
+}
+
+async function pollAnalysis(
+  res: ServerResponse,
+  app: CatalystApp,
+  token: string,
+  owner: string,
+  repo?: CatalystNutritionRepository,
+) {
   const executionId = readAnalysisToken(token, owner);
   if (!executionId) return sendJson(res, 404, { error: "Analysis not found" });
   const state = await getMealAnalysis(app, executionId);
   if (state.state === "running") return sendJson(res, 200, analyzingResponse(token));
   if (state.state === "failed") return sendJson(res, 502, { error: state.error });
-  return sendJson(res, 200, { ...state.result, analysisId: token });
+  // Signed-in users get their personal food memory applied; guests get Zia's raw read.
+  const result = repo
+    ? await repo.applyFoodMemory(owner, state.result).catch((error) => {
+        console.error("Food memory lookup failed", error);
+        return state.result;
+      })
+    : state.result;
+  return sendJson(res, 200, { ...result, analysisId: token });
 }
 
 /**
@@ -70,6 +120,24 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       return sendJson(res, 202, analyzingResponse(issueAnalysisToken(executionId, GUEST_OWNER)));
     }
 
+    // Public demo: the browser sends the sample account's context; nothing is stored.
+    const guestCoach = /^\/guest\/coach\/(plan|menu|weekly)(?:\/([\w.]+))?$/.exec(path);
+    if (guestCoach) {
+      const task = guestCoach[1] as CoachTask;
+      const guestApp = catalyst.initialize(req as unknown as Record<string, unknown>, { scope: "admin" });
+      if (method === "GET" && guestCoach[2]) return respondCoachPoll(res, guestApp, task, guestCoach[2], GUEST_OWNER, query);
+      if (method !== "POST" || guestCoach[2]) return sendJson(res, 405, { error: "Method not allowed" });
+      const retryAfter = guestRetryAfterSeconds(req);
+      if (retryAfter > 0) {
+        res.setHeader("Retry-After", String(retryAfter));
+        return sendJson(res, 429, { error: "You've tried Zia a few times already. Sign up free to keep going." });
+      }
+      const body = await readJsonBody<{ context?: unknown; imageDataUrl?: string }>(req);
+      const image = task === "menu" ? decodeImageDataUrl(body.imageDataUrl) : undefined;
+      const executionId = await startCoach(guestApp, task, body.context, image);
+      return sendJson(res, 202, { status: "working", token: issueAnalysisToken(executionId, `${GUEST_OWNER}:${task}`) });
+    }
+
     const account = await requireAccount(req);
     const adminApp = catalyst.initialize(req as unknown as Record<string, unknown>, { scope: "admin" });
     const repo = new CatalystNutritionRepository(adminApp, account);
@@ -78,7 +146,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
     const route = `${method} ${path}`;
     const mealMatch = /^\/meal\/(\d+)$/.exec(path);
     const analysisPoll = /^\/meal\/analyze\/([\w.]+)$/.exec(path);
-    if (method === "GET" && analysisPoll) return pollAnalysis(res, adminApp, analysisPoll[1], userId);
+    if (method === "GET" && analysisPoll) return pollAnalysis(res, adminApp, analysisPoll[1], userId, repo);
 
     switch (route) {
       case "GET /me":
@@ -137,6 +205,28 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
         return sendJson(res, 200, await repo.confirmMeal({ ...body, photoUrl: undefined, userId }));
       }
 
+      case "GET /water":
+        return sendJson(res, 200, await repo.getWaterDay(userId, assertDateKey(query.get("date") ?? undefined)));
+      case "POST /water":
+        return sendJson(res, 200, await repo.addWater(userId, await readJsonBody<WaterInput>(req)));
+
+      case "GET /weight":
+        return sendJson(res, 200, await repo.getWeightTrend(userId, assertDateKey(query.get("date") ?? undefined)));
+      case "POST /weight":
+        return sendJson(
+          res,
+          200,
+          await repo.logWeight(userId, await readJsonBody<WeightInput>(req), assertDateKey(query.get("date") ?? undefined)),
+        );
+
+      case "GET /favorites":
+        return sendJson(res, 200, await repo.listFavorites(userId));
+      case "POST /favorites":
+        return sendJson(res, 200, await repo.saveFavorite(userId, await readJsonBody<FavoriteInput>(req)));
+
+      case "GET /streak":
+        return sendJson(res, 200, await repo.getStreak(userId, assertDateKey(query.get("date") ?? undefined)));
+
       case "GET /export":
         return sendJson(res, 200, await repo.exportUserData(userId));
 
@@ -145,6 +235,45 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
         await adminApp.userManagement().deleteUser(userId);
         return sendJson(res, 200, { success: true });
       }
+    }
+
+    if (route === "GET /coach/weekly/latest") return sendJson(res, 200, { recap: await repo.latestWeeklyRecap(userId) });
+
+    const coachRoute = /^\/coach\/(plan|menu|weekly)(?:\/([\w.]+))?$/.exec(path);
+    if (coachRoute && COACH_TASKS.includes(coachRoute[1] as CoachTask)) {
+      const task = coachRoute[1] as CoachTask;
+      if (method === "GET" && coachRoute[2]) return respondCoachPoll(res, adminApp, task, coachRoute[2], userId, query, repo);
+      if (method !== "POST" || coachRoute[2]) return sendJson(res, 405, { error: "Method not allowed" });
+
+      const today = assertDateKey(query.get("date") ?? undefined);
+      const body = await readJsonBody<{ mealType?: CoachMealType; imageDataUrl?: string; localHour?: number }>(req);
+      const [profile, summary] = await Promise.all([repo.getProfile(userId), repo.getDailySummary(userId, today)]);
+      let context: unknown;
+      if (task === "plan") {
+        context = planContext({
+          profile,
+          today: summary,
+          mealType: body.mealType ?? "lunch",
+          recentFoods: await repo.recentFoodNames(userId, today),
+          localHour: Number(body.localHour ?? 12),
+        });
+      } else if (task === "menu") {
+        context = menuContext({ profile, today: summary });
+      } else {
+        context = (await buildWeeklyContext(repo, userId, today)).context;
+      }
+      const image = task === "menu" ? decodeImageDataUrl(body.imageDataUrl) : undefined;
+      const executionId = await startCoach(adminApp, task, context, image);
+      return sendJson(res, 202, { status: "working", token: issueAnalysisToken(executionId, `${userId}:${task}`) });
+    }
+
+    const trackerDelete = /^\/(water|weight|favorites)\/(\d+)$/.exec(path);
+    if (method === "DELETE" && trackerDelete) {
+      const [, kind, id] = trackerDelete;
+      if (kind === "water") await repo.removeWater(userId, id);
+      else if (kind === "weight") await repo.deleteWeight(userId, id);
+      else await repo.deleteFavorite(userId, id);
+      return sendJson(res, 200, { success: true });
     }
 
     if (mealMatch) {

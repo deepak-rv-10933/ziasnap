@@ -37,4 +37,11 @@ export interface FoodItem {
   preparationNote?: string;
   isUserAdded: boolean;
   isEdited: boolean;
+  /**
+   * What Zia originally saw, kept through edits. Lets the backend tell a real
+   * correction ("Dosa" → "Ghee Roast Dosa") from a count change, for food memory.
+   */
+  detected?: { name: string; unit: PortionUnit; perUnitNutrition: NutritionValues };
+  /** Filled in from the user's own past correction of this dish (personal food memory). */
+  fromMemory?: boolean;
 }

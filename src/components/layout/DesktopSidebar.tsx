@@ -12,7 +12,7 @@ export function DesktopSidebar() {
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border/70 bg-card/60 px-5 py-6 lg:flex">
       <Link href="/home" className="mb-8 flex items-center gap-2 px-1">
-        <span className="flex size-9 items-center justify-center rounded-2xl bg-brand-turmeric text-[#211c16]">
+        <span className="flex size-9 items-center justify-center rounded-2xl bg-brand-turmeric text-[#1a1206]">
           <Leaf weight="fill" className="size-5" />
         </span>
         <span className="font-display text-lg font-semibold tracking-tight">ZiaSnap</span>
@@ -20,7 +20,7 @@ export function DesktopSidebar() {
 
       <Link
         href="/snap"
-        className="mb-6 flex items-center justify-center gap-2 rounded-2xl bg-brand-turmeric px-4 py-3 text-sm font-semibold text-[#211c16] shadow-[0_10px_24px_-8px_rgba(214,154,45,0.55)] transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-turmeric/40 active:scale-[0.98]"
+        className="mb-6 flex items-center justify-center gap-2 rounded-2xl bg-brand-turmeric px-4 py-3 text-sm font-semibold text-[#1a1206] shadow-[0_10px_24px_-8px_rgba(242,168,29,0.55)] transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-turmeric/40 active:scale-[0.98]"
       >
         <Camera weight="fill" className="size-5" />
         Snap a meal

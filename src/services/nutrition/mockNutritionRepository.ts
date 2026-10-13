@@ -1,5 +1,10 @@
 import type {
   DailySummary,
+  FavoriteMeal,
+  LoggingStreak,
+  WaterDay,
+  WeightEntry,
+  WeightTrend,
   Meal,
   MealRecommendation,
   UserProfile,
@@ -12,6 +17,10 @@ import { generateId } from "@/lib/utils/id";
 import { mealDateKey } from "@/types/meal";
 import { MOCK_GOAL_TARGETS, MOCK_USER_PROFILE } from "@/data/mock-user";
 import { MOCK_MEALS } from "@/data/mock-meals";
+import { buildMockFavorites, buildMockWater, buildMockWeights, type MockWaterEntry } from "@/data/mock-tracking";
+import { buildWaterDay, waterGoalMl } from "@/services/tracking/water";
+import { buildWeightTrend } from "@/services/tracking/weight-trend";
+import { computeStreak } from "@/services/tracking/streak";
 import { buildRecommendations } from "@/services/recommendations/mockRecommendationService";
 import { buildWeeklyInsights } from "@/services/insights/mockInsightsService";
 import type {
@@ -21,6 +30,9 @@ import type {
   ProfileUpdateInput,
   UpdateMealInput,
   UserDataExport,
+  FavoriteInput,
+  WaterInput,
+  WeightInput,
 } from "./NutritionRepository";
 
 /** Was 250ms in Phase 1 to show off loading skeletons; the public demo runs on these routes now. */
@@ -34,6 +46,9 @@ interface Store {
   profile: UserProfile;
   goalTargets: ReturnType<typeof calculateGoalTargets>;
   meals: Meal[];
+  water: MockWaterEntry[];
+  weights: WeightEntry[];
+  favorites: FavoriteMeal[];
 }
 
 const globalForStore = globalThis as unknown as { __ziaSnapStore?: Store };
@@ -43,6 +58,9 @@ function createStore(): Store {
     profile: structuredClone(MOCK_USER_PROFILE),
     goalTargets: structuredClone(MOCK_GOAL_TARGETS),
     meals: structuredClone(MOCK_MEALS),
+    water: buildMockWater(),
+    weights: buildMockWeights(),
+    favorites: buildMockFavorites(),
   };
 }
 
@@ -185,11 +203,81 @@ class MockNutritionRepository implements NutritionRepository {
       profile: store.profile,
       goalTargets: store.goalTargets,
       meals: store.meals,
-      weightLogs: [],
-      waterLogs: [],
-      favorites: [],
+      weightLogs: store.weights.map(({ dateKey, weightKg }) => ({ dateKey, weightKg })),
+      waterLogs: store.water.map(({ dateKey, amountMl, loggedAt }) => ({ dateKey, amountMl, loggedAt })),
+      favorites: store.favorites.map(({ name, mealType, items }) => ({ name, mealType, items })),
       foodCorrections: [],
     });
+  }
+
+  // ------------------------------------------------------------ trackers
+
+  private waterDay(dateKey: string): WaterDay {
+    const entries = store.water.filter((entry) => entry.dateKey === dateKey).map(({ id, amountMl, loggedAt }) => ({ id, amountMl, loggedAt }));
+    return buildWaterDay(dateKey, entries, waterGoalMl(store.profile.personalDetails.currentWeightKg));
+  }
+
+  async getWaterDay(userId: string, dateKey: string): Promise<WaterDay> {
+    assertUser(userId);
+    return this.waterDay(dateKey);
+  }
+
+  async addWater(userId: string, input: WaterInput): Promise<WaterDay> {
+    assertUser(userId);
+    store.water.push({ id: generateId("water"), dateKey: input.dateKey, amountMl: input.amountMl, loggedAt: new Date().toISOString() });
+    return this.waterDay(input.dateKey);
+  }
+
+  async removeWater(userId: string, entryId: string): Promise<void> {
+    assertUser(userId);
+    store.water = store.water.filter((entry) => entry.id !== entryId);
+  }
+
+  async getWeightTrend(userId: string, todayDateKey: string): Promise<WeightTrend> {
+    assertUser(userId);
+    return buildWeightTrend(store.weights, store.profile.personalDetails.targetWeightKg, todayDateKey);
+  }
+
+  async logWeight(userId: string, input: WeightInput, todayDateKey: string): Promise<WeightTrend> {
+    assertUser(userId);
+    store.weights = store.weights.filter((entry) => entry.dateKey !== input.dateKey);
+    store.weights.push({ id: generateId("weight"), dateKey: input.dateKey, weightKg: input.weightKg });
+    const latest = [...store.weights].sort((a, b) => b.dateKey.localeCompare(a.dateKey))[0];
+    store.profile.personalDetails.currentWeightKg = latest.weightKg;
+    return this.getWeightTrend(userId, todayDateKey);
+  }
+
+  async deleteWeight(userId: string, entryId: string): Promise<void> {
+    assertUser(userId);
+    store.weights = store.weights.filter((entry) => entry.id !== entryId);
+  }
+
+  async listFavorites(userId: string): Promise<FavoriteMeal[]> {
+    assertUser(userId);
+    return structuredClone(store.favorites);
+  }
+
+  async saveFavorite(userId: string, input: FavoriteInput): Promise<FavoriteMeal> {
+    assertUser(userId);
+    const favorite: FavoriteMeal = {
+      id: generateId("fav"),
+      name: input.name,
+      mealType: input.mealType,
+      items: input.items,
+      totalNutrition: sumNutrition(input.items.map((item) => item.nutrition)),
+    };
+    store.favorites.push(favorite);
+    return structuredClone(favorite);
+  }
+
+  async deleteFavorite(userId: string, favoriteId: string): Promise<void> {
+    assertUser(userId);
+    store.favorites = store.favorites.filter((favorite) => favorite.id !== favoriteId);
+  }
+
+  async getStreak(userId: string, todayDateKey: string): Promise<LoggingStreak> {
+    assertUser(userId);
+    return computeStreak(store.meals.filter((meal) => meal.confirmedAt).map(mealDateKey), todayDateKey);
   }
 
   /** Mock "deletion" restores the seeded demo data so the preview keeps working. */
@@ -207,3 +295,12 @@ function assertUser(userId: string) {
 }
 
 export const nutritionRepository: NutritionRepository = new MockNutritionRepository();
+
+/** Snapshot / restore for the in-browser demo backend, which keeps the store in localStorage. */
+export function snapshotMockStore(): string {
+  return JSON.stringify(store);
+}
+
+export function restoreMockStore(serialized: string) {
+  Object.assign(store, JSON.parse(serialized) as Store);
+}

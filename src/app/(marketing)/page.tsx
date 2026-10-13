@@ -52,7 +52,7 @@ export default function WelcomePage() {
             transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="mb-5 flex items-center gap-2"
           >
-            <span className="flex size-9 items-center justify-center rounded-2xl bg-brand-turmeric text-[#211c16]">
+            <span className="flex size-9 items-center justify-center rounded-2xl bg-brand-turmeric text-[#1a1206]">
               <Leaf weight="fill" className="size-5" />
             </span>
             <span className="font-display text-lg font-semibold tracking-tight text-foreground">ZiaSnap</span>

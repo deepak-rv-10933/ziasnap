@@ -3,6 +3,7 @@ import { sumNutrition } from "@/types/nutrition";
 import { RECOMMENDATION_TEMPLATES, type RecommendationTemplate } from "@/data/recommendation-templates";
 import { buildFoodItem } from "@/lib/utils/food-item";
 import { generateId } from "@/lib/utils/id";
+import { activeFastingMode } from "@/services/modes/fasting-modes";
 
 function itemsForTemplate(template: RecommendationTemplate): FoodItem[] {
   return template.items.map((item) => buildFoodItem(item.catalogId, { quantity: item.quantity }));
@@ -40,7 +41,13 @@ export function buildRecommendations(
   const remainingProteinG = todaySummary.remaining.proteinG;
   const nutrientPriorities = profile.nutritionPreferences.nutrientPriorities;
 
-  const scored = RECOMMENDATION_TEMPLATES.filter((template) => isAllowedByDiet(template, profile)).map(
+  // During a fasting/festival mode only that mode's templates apply; otherwise mode templates are hidden.
+  const mode = activeFastingMode(profile.nutritionPreferences, todaySummary.date);
+  const scored = RECOMMENDATION_TEMPLATES.filter(
+    (template) =>
+      isAllowedByDiet(template, profile) &&
+      (mode ? template.modes?.includes(mode.type) === true : template.modes === undefined),
+  ).map(
     (template) => {
       const items = itemsForTemplate(template);
       const nutrition = sumNutrition(items.map((item) => item.nutrition));

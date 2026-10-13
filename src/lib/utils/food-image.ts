@@ -9,6 +9,12 @@ export function resolveFoodImage(key: string | undefined): string {
   return FOOD_IMAGES.emptyStatePhoto;
 }
 
+/** Curated photo key for a dish name, or undefined when there's no good match. */
+export function imageKeyForName(name: string): FoodImageKey | undefined {
+  const key = toImageKey(name);
+  return key in FOOD_IMAGES ? (key as FoodImageKey) : undefined;
+}
+
 function toImageKey(name: string): string {
   const words = name
     .toLowerCase()

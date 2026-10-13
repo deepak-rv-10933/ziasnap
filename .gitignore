@@ -49,3 +49,5 @@ node_modules/
 !.env.example
 !.env.production
 
+
+/functions/ziasnap-weekly-coach/index.js

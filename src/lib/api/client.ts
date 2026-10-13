@@ -1,6 +1,10 @@
 import type {
   AccountInfo,
   DailySummary,
+  FavoriteMeal,
+  LoggingStreak,
+  WaterDay,
+  WeightTrend,
   GoalTargets,
   Meal,
   MealRecommendation,
@@ -11,6 +15,7 @@ import type {
 import type { ZiaMealAnalysisResult } from "@/types/zia";
 import type {
   ConfirmMealInput,
+  FavoriteInput,
   ProfileUpdateInput,
   UpdateMealInput,
   UserDataExport,
@@ -24,6 +29,7 @@ import {
   redirectToLogin,
 } from "@/lib/catalyst/web-sdk";
 import { daysAgoKey, toDateKey } from "@/lib/utils/date";
+import { LocalBackendError, localBackend } from "./local-backend";
 
 export class ApiError extends Error {
   constructor(
@@ -44,8 +50,18 @@ async function request<T>(
   init?: RequestInit,
   options: { auth?: boolean; forceRealBackend?: boolean } = {},
 ): Promise<T> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
   const useRealBackend = options.forceRealBackend || isRealBackendActive();
+  // Demo and local mock builds: answered in the browser, no network round trip.
+  if (!useRealBackend) {
+    try {
+      return await localBackend<T>(path, init);
+    } catch (error) {
+      if (error instanceof LocalBackendError) throw new ApiError(error.message, error.status);
+      throw error;
+    }
+  }
+
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   let url = path;
   if (useRealBackend) {
     url = `${API_BASE_URL}${path.replace(/^\/api\/mock/, "")}`;
@@ -119,6 +135,9 @@ export const api = {
     const basePath = asGuest ? "/api/mock/guest/analyze" : "/api/mock/meal/analyze";
     const auth = asGuest ? { auth: false, forceRealBackend: true } : {};
 
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      throw new ApiError("You're offline. Zia needs a connection to read photos, but you can quick log the meal from Today.", 0);
+    }
     const started = await request<ZiaMealAnalysisResult>(
       basePath,
       { method: "POST", body: JSON.stringify(asGuest ? { imageDataUrl: input.imageDataUrl } : input) },
@@ -153,6 +172,26 @@ export const api = {
     request<Meal>(`/api/mock/meal/${id}`, { method: "PATCH", body: JSON.stringify(input) }),
 
   deleteMeal: (id: string) => request<{ success: boolean }>(`/api/mock/meal/${id}`, { method: "DELETE" }),
+
+  getWater: (dateKey?: string) => request<WaterDay>(`/api/mock/water?date=${dateKey ?? today()}`),
+  addWater: (amountMl: number, dateKey?: string) =>
+    request<WaterDay>("/api/mock/water", { method: "POST", body: JSON.stringify({ amountMl, dateKey: dateKey ?? today() }) }),
+  removeWater: (entryId: string) => request<{ success: boolean }>(`/api/mock/water/${entryId}`, { method: "DELETE" }),
+
+  getWeightTrend: () => request<WeightTrend>(`/api/mock/weight?date=${today()}`),
+  logWeight: (weightKg: number, dateKey?: string) =>
+    request<WeightTrend>(`/api/mock/weight?date=${today()}`, {
+      method: "POST",
+      body: JSON.stringify({ weightKg, dateKey: dateKey ?? today() }),
+    }),
+  deleteWeight: (entryId: string) => request<{ success: boolean }>(`/api/mock/weight/${entryId}`, { method: "DELETE" }),
+
+  getFavorites: () => request<FavoriteMeal[]>("/api/mock/favorites"),
+  saveFavorite: (input: FavoriteInput) =>
+    request<FavoriteMeal>("/api/mock/favorites", { method: "POST", body: JSON.stringify(input) }),
+  deleteFavorite: (id: string) => request<{ success: boolean }>(`/api/mock/favorites/${id}`, { method: "DELETE" }),
+
+  getStreak: () => request<LoggingStreak>(`/api/mock/streak?date=${today()}`),
 
   exportData: () => request<UserDataExport>("/api/mock/export"),
 

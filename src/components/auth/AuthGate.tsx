@@ -25,7 +25,7 @@ export function useIsGuest() {
 function GateSplash() {
   return (
     <div className="flex min-h-dvh items-center justify-center" role="status" aria-label="Loading your account">
-      <span className="flex size-11 animate-pulse items-center justify-center rounded-2xl bg-brand-turmeric text-[#211c16]">
+      <span className="flex size-11 animate-pulse items-center justify-center rounded-2xl bg-brand-turmeric text-[#1a1206]">
         <Leaf weight="fill" className="size-6" />
       </span>
     </div>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { FoodItem, MealType, ZiaMealAnalysisResult } from "@/types";
+import type { FoodItem, MealType, ZiaClarifyQuestion, ZiaMealAnalysisResult } from "@/types";
 import { sumNutrition } from "@/types/nutrition";
 import { mealTypeFromHour } from "@/lib/utils/date";
 import { generateId } from "@/lib/utils/id";
@@ -14,6 +14,9 @@ interface MealCaptureState {
   overallConfidence: ZiaMealAnalysisResult["overallConfidence"] | null;
   analysisNotes: string | null;
   items: FoodItem[];
+  questions: ZiaClarifyQuestion[];
+  /** questionId → chosen option label. */
+  answers: Record<string, string>;
   notes: string;
   error: string | null;
 
@@ -25,6 +28,8 @@ interface MealCaptureState {
   analysisSucceeded: (result: ZiaMealAnalysisResult) => void;
   analysisFailed: (error: string) => void;
   updateItem: (id: string, patch: Partial<FoodItem>) => void;
+  /** Smart confirmation: swap in the option's item. Choosing Zia's current guess just confirms it. */
+  answerQuestion: (questionId: string, optionLabel: string) => void;
   removeItem: (id: string) => void;
   addItem: (item: FoodItem) => void;
   setNotes: (notes: string) => void;
@@ -50,6 +55,8 @@ const initialState = {
   overallConfidence: null as ZiaMealAnalysisResult["overallConfidence"] | null,
   analysisNotes: null as string | null,
   items: [] as FoodItem[],
+  questions: [] as ZiaClarifyQuestion[],
+  answers: {} as Record<string, string>,
   notes: "",
   error: null as string | null,
 };
@@ -73,6 +80,8 @@ export const useMealCaptureStore = create<MealCaptureState>((set, get) => ({
       overallConfidence: result.overallConfidence,
       analysisNotes: result.notes ?? null,
       items: result.detectedItems,
+      questions: result.questions ?? [],
+      answers: {},
     }),
 
   analysisFailed: (error) => set({ status: "error", error }),
@@ -81,6 +90,21 @@ export const useMealCaptureStore = create<MealCaptureState>((set, get) => ({
     set((state) => ({
       items: state.items.map((item) => (item.id === id ? { ...item, ...patch, isEdited: true } : item)),
     })),
+
+  answerQuestion: (questionId, optionLabel) =>
+    set((state) => {
+      const question = state.questions.find((candidate) => candidate.id === questionId);
+      const option = question?.options.find((candidate) => candidate.label === optionLabel);
+      if (!question || !option) return {};
+      return {
+        answers: { ...state.answers, [questionId]: optionLabel },
+        items: state.items.map((item) =>
+          item.id === question.itemId
+            ? { ...option.item, id: item.id, detected: item.detected, isEdited: !option.isCurrent }
+            : item,
+        ),
+      };
+    }),
 
   removeItem: (id) => set((state) => ({ items: state.items.filter((item) => item.id !== id) })),
 
@@ -98,10 +122,12 @@ export const useMealCaptureStore = create<MealCaptureState>((set, get) => ({
       analysisId: meal.analysisId ?? null,
       overallConfidence: meal.overallConfidence ?? null,
       analysisNotes: meal.analysisNotes ?? null,
+      questions: [],
+      answers: {},
       error: null,
     }),
 
-  retake: () => set({ status: "idle", capturedImage: null, items: [], error: null }),
+  retake: () => set({ status: "idle", capturedImage: null, items: [], questions: [], answers: {}, error: null }),
 
   reset: () => set({ ...initialState, mealType: mealTypeFromHour(new Date().getHours()) }),
 }));

@@ -3,7 +3,8 @@ import type {
   ZiaMealAnalysisResult,
   ZiaMealAnalysisService,
 } from "@/types/zia";
-import type { ConfidenceLevel } from "@/types";
+import type { ConfidenceLevel, FoodItem, ZiaClarifyQuestion } from "@/types";
+import { scaleNutrition } from "@/types/nutrition";
 import { MEAL_TEMPLATES, templatesFor } from "@/data/meal-templates";
 import { buildFoodItem } from "@/lib/utils/food-item";
 import { generateId } from "@/lib/utils/id";
@@ -43,6 +44,49 @@ function overallConfidenceFrom(levels: ConfidenceLevel[]): ConfidenceLevel {
   return "medium";
 }
 
+/** Mirrors the real agent's smart confirmation: a count question for a countable item, else a bowl-size one. */
+function mockQuestions(items: FoodItem[]): ZiaClarifyQuestion[] {
+  const option = (target: FoodItem, label: string, quantity: number, isCurrent: boolean, portionLabel: string) => ({
+    label,
+    isCurrent,
+    item: {
+      ...target,
+      portion: { ...target.portion, quantity, label: portionLabel },
+      nutrition: scaleNutrition(target.perUnitNutrition, quantity),
+      confidence: "high" as const,
+    },
+  });
+
+  const countable = items.find((item) => item.portion.unit === "piece");
+  if (countable) {
+    const current = Math.max(1, Math.round(countable.portion.quantity));
+    const counts = [...new Set([Math.max(1, current - 1), current, current + 1])];
+    return [
+      {
+        id: "q0",
+        itemId: countable.id,
+        question: `How many ${countable.name.toLowerCase()}${countable.name.toLowerCase().endsWith("s") ? "" : "s"}?`,
+        options: counts.map((count) => option(countable, String(count), count, count === current, `${count} piece${count === 1 ? "" : "s"}`)),
+      },
+    ];
+  }
+  const bowl = items.find((item) => item.portion.unit === "bowl");
+  if (!bowl) return [];
+  const base = bowl.portion.quantity;
+  return [
+    {
+      id: "q0",
+      itemId: bowl.id,
+      question: `How big was the ${bowl.name.toLowerCase()} bowl?`,
+      options: [
+        option(bowl, "Small", base * 0.75, false, "1 small bowl"),
+        option(bowl, "Regular", base, true, bowl.portion.label),
+        option(bowl, "Large", base * 1.5, false, "1 large bowl"),
+      ],
+    },
+  ];
+}
+
 /**
  * Mock stand-in for the future Zia Agent vision + nutrition-estimation API.
  * Consumers should depend on `ZiaMealAnalysisService`, not this class, so the
@@ -61,10 +105,15 @@ class MockZiaMealAnalysisService implements ZiaMealAnalysisService {
       }),
     );
 
+    for (const item of detectedItems) {
+      item.detected = { name: item.name, unit: item.portion.unit, perUnitNutrition: item.perUnitNutrition };
+    }
+
     const result: ZiaMealAnalysisResult = {
       analysisId: generateId("analysis"),
       status: "completed",
       detectedItems,
+      questions: mockQuestions(detectedItems),
       overallConfidence: overallConfidenceFrom(detectedItems.map((item) => item.confidence)),
       notes:
         template.items.some((item) => item.preparationNote !== undefined)

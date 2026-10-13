@@ -20,7 +20,7 @@ export default function DemoEntryPage() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-3" role="status">
-      <span className="flex size-11 animate-pulse items-center justify-center rounded-2xl bg-brand-turmeric text-[#211c16]">
+      <span className="flex size-11 animate-pulse items-center justify-center rounded-2xl bg-brand-turmeric text-[#1a1206]">
         <Leaf weight="fill" className="size-6" />
       </span>
       <p className="text-sm text-muted-foreground">Opening the demo…</p>

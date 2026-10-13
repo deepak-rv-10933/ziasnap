@@ -44,7 +44,7 @@ export function BottomSheet({ open, onOpenChange, title, description, children, 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-[#211c16]/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-[#1a1206]/45 backdrop-blur-[2px]"
             onClick={() => onOpenChange(false)}
             aria-hidden="true"
           />

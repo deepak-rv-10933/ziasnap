@@ -7,4 +7,5 @@ export const REASON_TAG_LABEL: Record<RecommendationReasonTag, string> = {
   nutrient_gap: "Covers a nutrient gap",
   cuisine_match: "Matches your cuisine",
   recently_enjoyed: "You've enjoyed this before",
+  fasting_friendly: "Fasting-friendly",
 };

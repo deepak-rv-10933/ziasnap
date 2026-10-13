@@ -26,7 +26,7 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
         onClick={() => inputRef.current?.click()}
         className="flex aspect-[4/5] w-full flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-brand-turmeric/40 bg-brand-turmeric-soft/40 text-brand-tamarind transition-colors hover:bg-brand-turmeric-soft/70 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-turmeric/30 dark:text-brand-turmeric"
       >
-        <span className="flex size-20 items-center justify-center rounded-full bg-brand-turmeric text-[#211c16] motion-safe:animate-[breathe_3.2s_ease-in-out_infinite]">
+        <span className="flex size-20 items-center justify-center rounded-full bg-brand-turmeric text-[#1a1206] motion-safe:animate-[breathe_3.2s_ease-in-out_infinite]">
           <Camera weight="fill" className="size-9" />
         </span>
         <span className="text-sm font-semibold">Tap to take a photo</span>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZiaSnap · Offline</title>
+<style>
+  :root { --bg:#eef2f5; --fg:#101a23; --muted:#586675; --accent:#f2a81d; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0a1016; --fg:#e8eef4; --muted:#8fa0b0; } }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--fg); font-family:system-ui,sans-serif; padding:24px; box-sizing:border-box; text-align:center; }
+  .mark { width:56px; height:56px; border-radius:16px; background:var(--accent); margin:0 auto 20px; }
+  h1 { font-size:22px; margin:0 0 8px; } p { color:var(--muted); line-height:1.5; max-width:320px; margin:0 auto 20px; }
+  button { background:var(--accent); color:#1a1206; border:0; border-radius:999px; padding:12px 22px; font-weight:600; font-size:15px; }
+</style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true"></div>
+    <h1>You're offline</h1>
+    <p>Anything you logged is saved on this phone and will sync when you're back online. Zia needs a connection to read photos.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>

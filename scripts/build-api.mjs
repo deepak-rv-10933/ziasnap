@@ -27,9 +27,7 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-await build({
-  entryPoints: [`${FUNCTION_DIR}/src/index.ts`],
-  outfile: `${FUNCTION_DIR}/index.js`,
+const shared = {
   bundle: true,
   platform: "node",
   target: "node22",
@@ -38,4 +36,13 @@ await build({
   tsconfig: `${FUNCTION_DIR}/tsconfig.json`,
   define: Object.fromEntries(REQUIRED_SECRETS.map((name) => [`process.env.${name}`, JSON.stringify(env[name])])),
   logLevel: "info",
+};
+
+// The API, and the Sunday recap job that reuses its repository and Coach client.
+await build({ ...shared, entryPoints: [`${FUNCTION_DIR}/src/index.ts`], outfile: `${FUNCTION_DIR}/index.js` });
+await build({
+  ...shared,
+  entryPoints: ["functions/ziasnap-weekly-coach/src/index.ts"],
+  outfile: "functions/ziasnap-weekly-coach/index.js",
+  tsconfig: "functions/ziasnap-weekly-coach/tsconfig.json",
 });

@@ -119,6 +119,8 @@ export function redirectToLogin() {
 
 export async function signOut() {
   clearAuthToken();
+  // Inline import keeps this module free of React Query for the API client's sake.
+  (await import("@/lib/api/query-persistence")).clearPersistedQueries();
   const sdk = await loadCatalyst();
   sdk.auth.signOut(window.location.origin);
 }

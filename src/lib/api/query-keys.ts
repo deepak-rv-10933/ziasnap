@@ -7,4 +7,8 @@ export const queryKeys = {
   insights: (weekStart?: string) => ["insights", weekStart ?? "current"] as const,
   recommendations: ["recommendations"] as const,
   meal: (id: string) => ["meal", id] as const,
+  water: (dateKey?: string) => ["water", dateKey ?? "today"] as const,
+  weight: ["weight"] as const,
+  favorites: ["favorites"] as const,
+  streak: ["streak"] as const,
 };

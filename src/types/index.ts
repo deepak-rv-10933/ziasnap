@@ -7,3 +7,5 @@ export * from "./zia";
 export * from "./recommendation";
 export * from "./insight";
 export * from "./daily-summary";
+export * from "./tracking";
+export * from "./coach";

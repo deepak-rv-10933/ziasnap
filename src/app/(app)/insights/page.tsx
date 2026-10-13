@@ -11,6 +11,7 @@ import { formatDayLabel } from "@/lib/utils/date";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChartLineUp } from "@phosphor-icons/react/dist/ssr";
+import { WeeklyRecapCard } from "@/features/coach/WeeklyRecapCard";
 
 /** Patterns need a few days of data — below this, Insights explains itself instead of showing thin stats. */
 const MIN_DAYS_FOR_INSIGHTS = 3;
@@ -64,6 +65,7 @@ export default function InsightsPage() {
         <InsightsWarmingUp daysLogged={insightsQuery.data.daysLoggedCount} />
       ) : (
         <div className="flex flex-col gap-7">
+          <WeeklyRecapCard />
           <div>
             <p className="mb-2 text-xs text-muted-foreground">
               {formatDayLabel(insightsQuery.data.weekStartDate)} – {formatDayLabel(insightsQuery.data.weekEndDate)}

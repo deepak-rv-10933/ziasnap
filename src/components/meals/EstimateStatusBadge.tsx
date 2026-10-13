@@ -36,12 +36,13 @@ export function EstimateStatusBadge({ item, className }: { item: FoodItem; class
 
 /** "3 AI estimates · 1 edited by you" — a meal-level summary of the same distinction. */
 export function estimateSummary(items: FoodItem[]): string {
-  const counts = { ai_estimate: 0, edited: 0, added: 0 };
+  const counts = { ai_estimate: 0, edited: 0, added: 0, remembered: 0 };
   items.forEach((item) => (counts[estimateStatus(item)] += 1));
   const parts = [
     counts.ai_estimate ? `${counts.ai_estimate} AI estimate${counts.ai_estimate === 1 ? "" : "s"}` : null,
     counts.edited ? `${counts.edited} edited by you` : null,
     counts.added ? `${counts.added} added by you` : null,
+    counts.remembered ? `${counts.remembered} from your past edits` : null,
   ].filter(Boolean);
   return parts.join(" · ");
 }

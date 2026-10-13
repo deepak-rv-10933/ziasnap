@@ -22,6 +22,21 @@ export interface ZiaMealAnalysisRequest {
 
 export type ZiaAnalysisStatus = "queued" | "analyzing" | "completed" | "failed";
 
+/** One way to resolve an uncertain item: the complete replacement Zia would use. */
+export interface ZiaClarifyOption {
+  label: string;
+  isCurrent: boolean;
+  item: FoodItem;
+}
+
+/** Smart confirmation: Zia asks about an item when the answer moves its calories a lot. */
+export interface ZiaClarifyQuestion {
+  id: string;
+  itemId: string;
+  question: string;
+  options: ZiaClarifyOption[];
+}
+
 export interface ZiaMealAnalysisResult {
   analysisId: string;
   status: ZiaAnalysisStatus;
@@ -30,6 +45,8 @@ export interface ZiaMealAnalysisResult {
   overallConfidence: "high" | "medium" | "low";
   notes?: string;
   analyzedAt: string;
+  /** At most two targeted questions about the most uncertain items. */
+  questions?: ZiaClarifyQuestion[];
 }
 
 export interface ZiaMealAnalysisService {

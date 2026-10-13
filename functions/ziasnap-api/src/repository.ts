@@ -2,6 +2,10 @@ import type { CatalystApp } from "zcatalyst-sdk-node/lib/catalyst-app";
 import type {
   AccountInfo,
   DailySummary,
+  FavoriteMeal,
+  LoggingStreak,
+  WaterDay,
+  WeightTrend,
   FoodItem,
   GoalTargets,
   Meal,
@@ -10,12 +14,17 @@ import type {
   NutritionPreferences,
   UserProfile,
   WeeklyInsightSummary,
+  WeeklyRecap,
+  ZiaMealAnalysisResult,
 } from "@/types";
 import { sumNutrition } from "@/types/nutrition";
 import { calculateGoalTargets } from "@/lib/utils/goal-calculator";
 import { buildDailySummary, dateKeysBetween } from "@/services/nutrition/daily-summary";
 import { buildRecommendations } from "@/services/recommendations/mockRecommendationService";
 import { buildWeeklyInsights } from "@/services/insights/mockInsightsService";
+import { buildWaterDay, waterGoalMl } from "@/services/tracking/water";
+import { buildWeightTrend } from "@/services/tracking/weight-trend";
+import { computeStreak } from "@/services/tracking/streak";
 import type {
   ConfirmMealInput,
   HistoryRange,
@@ -23,6 +32,9 @@ import type {
   ProfileUpdateInput,
   UpdateMealInput,
   UserDataExport,
+  FavoriteInput,
+  WaterInput,
+  WeightInput,
 } from "@/services/nutrition/NutritionRepository";
 import {
   TABLES,
@@ -384,26 +396,103 @@ export class CatalystNutritionRepository implements NutritionRepository {
   }
 
   /**
-   * Keeps what the user changed about Zia's estimate. Phase C's "personal
-   * food memory" reads these back; for now they are stored and exported.
+   * Personal food memory, write side. Remembers only corrections that change
+   * *what* a dish is: its name, unit or calories per unit (e.g. "Dosa" →
+   * "Ghee Roast Dosa"). A count change ("3 idlis, not 2") isn't remembered,
+   * because tomorrow's plate may differ. Latest correction per dish wins.
    */
   private async recordCorrections(userId: string, items: FoodItem[]) {
-    const corrected = items.filter((item) => item.isEdited && !item.isUserAdded);
-    if (corrected.length === 0) return;
+    const meaningful = items.filter((item) => {
+      if (!item.detected || item.isUserAdded || !item.isEdited) return false;
+      const before = item.detected.perUnitNutrition.calories;
+      const after = item.perUnitNutrition.calories;
+      return (
+        item.name.trim().toLowerCase() !== item.detected.name.trim().toLowerCase() ||
+        item.portion.unit !== item.detected.unit ||
+        (before > 0 && Math.abs(after - before) / before > 0.08)
+      );
+    });
+    if (meaningful.length === 0) return;
     try {
+      const keys = meaningful.map((item) => sqlString(item.detected!.name.toLowerCase())).join(", ");
+      const stale = await selectAll(
+        this.app,
+        TABLES.foodCorrections,
+        `SELECT ROWID FROM ${TABLES.foodCorrections} WHERE UserId = ${sqlString(userId)} AND DetectedName IN (${keys})`,
+      );
+      await deleteRowIds(this.app, TABLES.foodCorrections, stale.map((row) => String(row.ROWID)));
       await insertRows(
         this.app,
         TABLES.foodCorrections,
-        corrected.map((item) => ({
+        meaningful.map((item) => ({
           UserId: userId,
-          DetectedName: item.name,
+          DetectedName: item.detected!.name.toLowerCase(),
           CorrectedName: item.name,
-          CorrectionJson: JSON.stringify(item),
+          CorrectionJson: JSON.stringify({
+            name: item.name,
+            unit: item.portion.unit,
+            perUnitNutrition: item.perUnitNutrition,
+            preparationNote: item.preparationNote,
+          }),
         })),
       );
     } catch (error) {
       console.error("Could not record food corrections", error);
     }
+  }
+
+  /**
+   * Personal food memory, read side: when Zia detects a dish the user has
+   * corrected before, use their version (keeping Zia's count when the unit
+   * matches) and drop any question about it, since it's already answered.
+   */
+  async applyFoodMemory(userId: string, result: Omit<ZiaMealAnalysisResult, "analysisId">) {
+    this.assertSelf(userId);
+    if (result.detectedItems.length === 0) return result;
+    const rows = await selectAll(
+      this.app,
+      TABLES.foodCorrections,
+      `SELECT DetectedName, CorrectionJson FROM ${TABLES.foodCorrections} WHERE UserId = ${sqlString(userId)}`,
+    );
+    const memory = new Map(
+      rows.map((row) => [
+        String(row.DetectedName),
+        parseJson<{ name: string; unit: FoodItem["portion"]["unit"]; perUnitNutrition: FoodItem["perUnitNutrition"]; preparationNote?: string } | null>(row.CorrectionJson, null),
+      ]),
+    );
+    const remembered = new Set<string>();
+    const detectedItems = result.detectedItems.map((item) => {
+      const correction = memory.get(item.name.toLowerCase());
+      if (!correction?.perUnitNutrition) return item;
+      remembered.add(item.id);
+      const quantity = correction.unit === item.portion.unit ? item.portion.quantity : 1;
+      const nutrition = {
+        calories: Math.round(correction.perUnitNutrition.calories * quantity),
+        proteinG: Math.round(correction.perUnitNutrition.proteinG * quantity * 10) / 10,
+        carbsG: Math.round(correction.perUnitNutrition.carbsG * quantity * 10) / 10,
+        fatG: Math.round(correction.perUnitNutrition.fatG * quantity * 10) / 10,
+        fiberG: Math.round((correction.perUnitNutrition.fiberG ?? 0) * quantity * 10) / 10,
+      };
+      return {
+        ...item,
+        name: correction.name,
+        portion: {
+          quantity,
+          unit: correction.unit,
+          label: correction.unit === item.portion.unit ? item.portion.label : `1 ${correction.unit}`,
+        },
+        perUnitNutrition: correction.perUnitNutrition,
+        nutrition,
+        preparationNote: correction.preparationNote ?? item.preparationNote,
+        confidence: "high" as const,
+        fromMemory: true,
+      };
+    });
+    return {
+      ...result,
+      detectedItems,
+      questions: (result.questions ?? []).filter((question) => !remembered.has(question.itemId)),
+    };
   }
 
   private async itemRowIds(userId: string, mealId: string): Promise<string[]> {
@@ -466,6 +555,202 @@ export class CatalystNutritionRepository implements NutritionRepository {
     return buildWeeklyInsights(meals, targets, weekStartDateKey);
   }
 
+  // --------------------------------------------------------------- trackers
+
+  private async ownedRowId(table: string, rowId: string): Promise<string | undefined> {
+    if (!/^\d+$/.test(rowId)) return undefined;
+    const rows = await selectAll(
+      this.app,
+      table,
+      `SELECT ROWID FROM ${table} WHERE ROWID = ${rowId} AND UserId = ${sqlString(this.account.userId)}`,
+    );
+    return rows[0] ? String(rows[0].ROWID) : undefined;
+  }
+
+  async getWaterDay(userId: string, dateKey: string): Promise<WaterDay> {
+    this.assertSelf(userId);
+    const [profile, rows] = await Promise.all([
+      this.getProfile(userId),
+      selectAll(
+        this.app,
+        TABLES.waterLogs,
+        `SELECT * FROM ${TABLES.waterLogs} WHERE UserId = ${sqlString(userId)} AND DateKey = ${sqlString(assertDateKey(dateKey))}`,
+      ),
+    ]);
+    const entries = rows.map((row) => ({
+      id: String(row.ROWID),
+      amountMl: num(row.AmountMl),
+      loggedAt: catalystTimeToIso(row.CREATEDTIME),
+    }));
+    return buildWaterDay(dateKey, entries, waterGoalMl(profile.personalDetails.currentWeightKg));
+  }
+
+  async addWater(userId: string, input: WaterInput): Promise<WaterDay> {
+    this.assertSelf(userId);
+    const amountMl = Math.round(num(input.amountMl));
+    if (amountMl <= 0 || amountMl > 2000) throw new Error("amountMl must be between 1 and 2000");
+    await this.app
+      .datastore()
+      .table(TABLES.waterLogs)
+      .insertRow({ UserId: userId, DateKey: assertDateKey(input.dateKey, "dateKey"), AmountMl: amountMl });
+    return this.getWaterDay(userId, input.dateKey);
+  }
+
+  async removeWater(userId: string, entryId: string): Promise<void> {
+    this.assertSelf(userId);
+    const id = await this.ownedRowId(TABLES.waterLogs, entryId);
+    if (id) await this.app.datastore().table(TABLES.waterLogs).deleteRow(id);
+  }
+
+  private async weightEntries(userId: string) {
+    const rows = await selectAll(
+      this.app,
+      TABLES.weightLogs,
+      `SELECT * FROM ${TABLES.weightLogs} WHERE UserId = ${sqlString(userId)} ORDER BY DateKey`,
+    );
+    return rows.map((row) => ({ id: String(row.ROWID), dateKey: String(row.DateKey), weightKg: num(row.WeightKg) }));
+  }
+
+  async getWeightTrend(userId: string, todayDateKey: string): Promise<WeightTrend> {
+    this.assertSelf(userId);
+    const [profile, entries] = await Promise.all([this.getProfile(userId), this.weightEntries(userId)]);
+    return buildWeightTrend(entries, profile.personalDetails.targetWeightKg, assertDateKey(todayDateKey));
+  }
+
+  async logWeight(userId: string, input: WeightInput, todayDateKey: string): Promise<WeightTrend> {
+    this.assertSelf(userId);
+    const weightKg = Math.round(num(input.weightKg) * 10) / 10;
+    if (weightKg < 25 || weightKg > 300) throw new Error("weightKg must be between 25 and 300");
+    const dateKey = assertDateKey(input.dateKey, "dateKey");
+
+    const entries = await this.weightEntries(userId);
+    const sameDay = entries.filter((entry) => entry.dateKey === dateKey).map((entry) => entry.id);
+    await deleteRowIds(this.app, TABLES.weightLogs, sameDay);
+    await this.app.datastore().table(TABLES.weightLogs).insertRow({ UserId: userId, DateKey: dateKey, WeightKg: weightKg });
+
+    const isLatest = entries.every((entry) => entry.dateKey <= dateKey);
+    if (isLatest) await this.updateProfile(userId, { personalDetails: { currentWeightKg: weightKg } });
+    return this.getWeightTrend(userId, todayDateKey);
+  }
+
+  async deleteWeight(userId: string, entryId: string): Promise<void> {
+    this.assertSelf(userId);
+    const id = await this.ownedRowId(TABLES.weightLogs, entryId);
+    if (id) await this.app.datastore().table(TABLES.weightLogs).deleteRow(id);
+  }
+
+  private rowToFavorite(row: Row): FavoriteMeal {
+    const items = parseJson<FoodItem[]>(row.ItemsJson, []);
+    return {
+      id: String(row.ROWID),
+      name: String(row.Name ?? ""),
+      mealType: optionalString(row.MealType) as MealType | undefined,
+      items,
+      totalNutrition: sumNutrition(items.map((item) => item.nutrition)),
+    };
+  }
+
+  async listFavorites(userId: string): Promise<FavoriteMeal[]> {
+    this.assertSelf(userId);
+    const rows = await selectAll(
+      this.app,
+      TABLES.favorites,
+      `SELECT * FROM ${TABLES.favorites} WHERE UserId = ${sqlString(userId)} ORDER BY CREATEDTIME`,
+    );
+    return rows.map((row) => this.rowToFavorite(row));
+  }
+
+  async saveFavorite(userId: string, input: FavoriteInput): Promise<FavoriteMeal> {
+    this.assertSelf(userId);
+    const items = this.validateItems(input.items);
+    if (input.mealType && !MEAL_TYPES.includes(input.mealType)) throw new Error("Unknown meal type");
+    const existing = await this.listFavorites(userId);
+    if (existing.length >= 30) throw new Error("You can keep at most 30 favorites");
+    const row = (await this.app
+      .datastore()
+      .table(TABLES.favorites)
+      .insertRow({
+        UserId: userId,
+        Name: clean(input.name, 120) || "Favorite meal",
+        MealType: input.mealType ?? "",
+        ItemsJson: JSON.stringify(items),
+      })) as unknown as Row;
+    return this.rowToFavorite(row);
+  }
+
+  async deleteFavorite(userId: string, favoriteId: string): Promise<void> {
+    this.assertSelf(userId);
+    const id = await this.ownedRowId(TABLES.favorites, favoriteId);
+    if (id) await this.app.datastore().table(TABLES.favorites).deleteRow(id);
+  }
+
+  async getStreak(userId: string, todayDateKey: string): Promise<LoggingStreak> {
+    this.assertSelf(userId);
+    const since = new Date(`${assertDateKey(todayDateKey)}T00:00:00Z`);
+    since.setUTCDate(since.getUTCDate() - 180);
+    const rows = await selectAll(
+      this.app,
+      TABLES.meals,
+      `SELECT DISTINCT DateKey FROM ${TABLES.meals} WHERE UserId = ${sqlString(userId)} AND DateKey >= ${sqlString(
+        since.toISOString().slice(0, 10),
+      )}`,
+    );
+    return computeStreak(
+      rows.map((row) => String(row.DateKey)),
+      todayDateKey,
+    );
+  }
+
+  // ----------------------------------------------------------------- coach
+
+  /** One recap per week: regenerating replaces it. */
+  async saveWeeklyRecap(userId: string, recap: WeeklyRecap): Promise<void> {
+    this.assertSelf(userId);
+    const existing = await selectAll(
+      this.app,
+      TABLES.coachReports,
+      `SELECT ROWID FROM ${TABLES.coachReports} WHERE UserId = ${sqlString(userId)} AND WeekStart = ${sqlString(assertDateKey(recap.weekStartDate))}`,
+    );
+    await deleteRowIds(this.app, TABLES.coachReports, existing.map((row) => String(row.ROWID)));
+    await this.app
+      .datastore()
+      .table(TABLES.coachReports)
+      .insertRow({ UserId: userId, WeekStart: recap.weekStartDate, ReportJson: JSON.stringify(recap) });
+  }
+
+  async latestWeeklyRecap(userId: string): Promise<WeeklyRecap | null> {
+    this.assertSelf(userId);
+    const rows = await selectAll(
+      this.app,
+      TABLES.coachReports,
+      `SELECT ReportJson FROM ${TABLES.coachReports} WHERE UserId = ${sqlString(userId)} ORDER BY WeekStart DESC`,
+    );
+    return rows[0] ? parseJson<WeeklyRecap | null>(rows[0].ReportJson, null) : null;
+  }
+
+  /** Average daily water over the days that have any, for the weekly recap. */
+  async averageWaterMl(userId: string, startDateKey: string, endDateKey: string): Promise<number | undefined> {
+    const rows = await selectAll(
+      this.app,
+      TABLES.waterLogs,
+      `SELECT DateKey, AmountMl FROM ${TABLES.waterLogs} WHERE UserId = ${sqlString(userId)} AND DateKey >= ${sqlString(
+        assertDateKey(startDateKey),
+      )} AND DateKey <= ${sqlString(assertDateKey(endDateKey))}`,
+    );
+    const byDay = new Map<string, number>();
+    rows.forEach((row) => byDay.set(String(row.DateKey), (byDay.get(String(row.DateKey)) ?? 0) + num(row.AmountMl)));
+    if (byDay.size === 0) return undefined;
+    return Math.round([...byDay.values()].reduce((a, b) => a + b, 0) / byDay.size);
+  }
+
+  /** Recent dish names, to steer the planner toward food this user actually eats. */
+  async recentFoodNames(userId: string, todayDateKey: string): Promise<string[]> {
+    const start = new Date(`${assertDateKey(todayDateKey)}T00:00:00Z`);
+    start.setUTCDate(start.getUTCDate() - 7);
+    const meals = await this.mealsBetween(userId, start.toISOString().slice(0, 10), todayDateKey);
+    return meals.flatMap((meal) => meal.items.map((item) => item.name));
+  }
+
   // ---------------------------------------------------------------- privacy
 
   async exportUserData(userId: string): Promise<UserDataExport> {
@@ -488,7 +773,11 @@ export class CatalystNutritionRepository implements NutritionRepository {
       goalTargets,
       meals,
       weightLogs: weightRows.map((row) => ({ dateKey: String(row.DateKey), weightKg: num(row.WeightKg) })),
-      waterLogs: waterRows.map((row) => ({ dateKey: String(row.DateKey), amountMl: num(row.AmountMl) })),
+      waterLogs: waterRows.map((row) => ({
+        dateKey: String(row.DateKey),
+        amountMl: num(row.AmountMl),
+        loggedAt: catalystTimeToIso(row.CREATEDTIME),
+      })),
       favorites: favoriteRows.map((row) => ({
         name: String(row.Name),
         mealType: optionalString(row.MealType) as MealType | undefined,

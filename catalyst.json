@@ -2,15 +2,16 @@
   "functions": {
     "targets": [
       "ziasnap-meal-analyze",
-      "ziasnap-api"
+      "ziasnap-api",
+      "ziasnap-weekly-coach"
     ],
     "ignore": [],
     "source": "functions"
   },
   "slate": [
     {
-      "name": "ziasnap",
-      "source": "/Users/deepak-10933/ziasnap"
+      "name": "ziasnap-app",
+      "source": "/Users/deepak-10933/ziasnap/out"
     }
   ]
 }

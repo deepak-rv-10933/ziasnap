@@ -1,0 +1,18 @@
+{
+	"deployment": {
+		"name": "ziasnap-weekly-coach",
+		"stack": "node22",
+		"type": "job",
+		"env_variables": {
+			"ZIA_DC": "com",
+			"ZIA_ORG_ID": "893309102",
+			"ZIA_AGENT_ID": "9917000000286009",
+			"PROJECT_TZ_OFFSET_MINUTES": "330",
+			"ZIA_COACH_AGENT_ID": "9917000000373087",
+			"RECAP_FROM_EMAIL": ""
+		}
+	},
+	"execution": {
+		"main": "index.js"
+	}
+}

@@ -10,6 +10,7 @@ export const TABLES = {
   waterLogs: "WaterLogs",
   favorites: "Favorites",
   foodCorrections: "FoodCorrections",
+  coachReports: "CoachReports",
 } as const;
 
 export const USER_TABLES = Object.values(TABLES);

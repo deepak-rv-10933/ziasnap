@@ -8,7 +8,8 @@ export type RecommendationReasonTag =
   | "goal_aligned"
   | "nutrient_gap"
   | "cuisine_match"
-  | "recently_enjoyed";
+  | "recently_enjoyed"
+  | "fasting_friendly";
 
 export interface MealRecommendation {
   id: string;

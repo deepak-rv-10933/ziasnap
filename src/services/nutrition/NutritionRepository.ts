@@ -8,7 +8,7 @@ import type {
   UserProfile,
   WeeklyInsightSummary,
 } from "@/types";
-import type { FoodItem } from "@/types";
+import type { FavoriteMeal, FoodItem, LoggingStreak, WaterDay, WeightTrend } from "@/types";
 
 export interface ProfileUpdateInput {
   personalDetails?: Partial<UserProfile["personalDetails"]>;
@@ -39,6 +39,22 @@ export interface UpdateMealInput {
   notes?: string;
 }
 
+export interface WaterInput {
+  dateKey: string;
+  amountMl: number;
+}
+
+export interface WeightInput {
+  dateKey: string;
+  weightKg: number;
+}
+
+export interface FavoriteInput {
+  name: string;
+  mealType?: MealType;
+  items: FoodItem[];
+}
+
 export interface HistoryRange {
   startDateKey: string;
   endDateKey: string;
@@ -51,7 +67,7 @@ export interface UserDataExport {
   goalTargets: GoalTargets;
   meals: Meal[];
   weightLogs: { dateKey: string; weightKg: number }[];
-  waterLogs: { dateKey: string; amountMl: number }[];
+  waterLogs: { dateKey: string; amountMl: number; loggedAt?: string }[];
   favorites: { name: string; mealType?: MealType; items: FoodItem[] }[];
   foodCorrections: { detectedName: string; correctedName: string; item: FoodItem }[];
 }
@@ -80,6 +96,21 @@ export interface NutritionRepository {
 
   getRecommendations(userId: string, todayDateKey: string): Promise<MealRecommendation[]>;
   getInsights(userId: string, weekStartDateKey: string): Promise<WeeklyInsightSummary>;
+
+  getWaterDay(userId: string, dateKey: string): Promise<WaterDay>;
+  addWater(userId: string, input: WaterInput): Promise<WaterDay>;
+  removeWater(userId: string, entryId: string): Promise<void>;
+
+  getWeightTrend(userId: string, todayDateKey: string): Promise<WeightTrend>;
+  /** One reading per day: logging again on the same day replaces it. Also updates the profile's current weight. */
+  logWeight(userId: string, input: WeightInput, todayDateKey: string): Promise<WeightTrend>;
+  deleteWeight(userId: string, entryId: string): Promise<void>;
+
+  listFavorites(userId: string): Promise<FavoriteMeal[]>;
+  saveFavorite(userId: string, input: FavoriteInput): Promise<FavoriteMeal>;
+  deleteFavorite(userId: string, favoriteId: string): Promise<void>;
+
+  getStreak(userId: string, todayDateKey: string): Promise<LoggingStreak>;
 
   exportUserData(userId: string): Promise<UserDataExport>;
   /** Removes every row the user owns. Photo and account removal are the caller's job. */

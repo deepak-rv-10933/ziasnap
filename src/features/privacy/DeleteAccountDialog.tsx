@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api/client";
 import { isRealBackendActive, signOut } from "@/lib/catalyst/web-sdk";
+import { clearPersistedQueries } from "@/lib/api/query-persistence";
 
 const CONFIRM_WORD = "DELETE";
 
@@ -24,6 +25,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: { open: boolean; onO
     try {
       await api.deleteAccount();
       queryClient.clear();
+      clearPersistedQueries();
       if (isRealBackendActive()) {
         // The account no longer exists; signing out clears the leftover session.
         // Full reload on purpose: drops every in-memory trace of the deleted account.

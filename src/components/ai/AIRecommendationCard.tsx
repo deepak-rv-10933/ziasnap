@@ -20,7 +20,7 @@ export function AIRecommendationCard({ recommendation, onSelect, className }: AI
       type="button"
       onClick={() => onSelect(recommendation)}
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-turmeric/50",
+        "pressable flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left shadow-[0_1px_2px_rgba(16,26,35,0.04)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-turmeric/50",
         className,
       )}
     >

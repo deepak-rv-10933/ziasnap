@@ -40,6 +40,16 @@ export interface PersonalDetails {
   targetWeightKg: number;
 }
 
+/** Indian-first modes: periods when suitable foods change. */
+export type FastingModeType = "navratri" | "ekadashi" | "ramadan";
+
+export interface FastingMode {
+  type: FastingModeType;
+  startDateKey: string;
+  /** Last day of the mode, inclusive. */
+  endDateKey: string;
+}
+
 export interface NutritionPreferences {
   dietaryPreference: DietaryPreference;
   cuisinePreference: CuisinePreference;
@@ -48,6 +58,8 @@ export interface NutritionPreferences {
   /** Free-text dietary/health context supplied by the user — never diagnostic. */
   healthContext?: string;
   nutrientPriorities: NutrientPriority[];
+  /** null = explicitly turned off (an omitted field would leave the saved mode in place). */
+  fastingMode?: FastingMode | null;
 }
 
 export interface UserProfile {

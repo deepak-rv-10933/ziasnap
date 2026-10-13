@@ -4,8 +4,8 @@
 
 **Snap your plate. Know what's on it.** ZiaSnap turns a photo of a meal into an editable nutrition log and tracks it against your calorie and protein goals. It's built around Indian and South Indian food (idli, dosa, sambar, thali, biryani) rather than a generic Western calorie database.
 
-- **Live app:** https://ziasnap.onslate.com (Catalyst Development environment)
-- **Demo, no login:** https://ziasnap.onslate.com/demo opens a sample account ("Arjun") with two weeks of meals. Snap analysis there is the real Zia Agent; saved meals go into shared sample data that resets.
+- **Live app:** https://ziasnap-app-zfxbofjv.onslate.com (Catalyst Development environment)
+- **Demo, no login:** https://ziasnap-app-zfxbofjv.onslate.com/demo opens a sample account ("Arjun") with two weeks of meals. Snap analysis there is the real Zia Agent; saved meals go into shared sample data that resets.
 - **Stack:** Next.js 15 + React 19 + TypeScript on Catalyst **Slate**; backend on Catalyst **Functions** (Advanced I/O) + **Data Store**; meal recognition by a **Zia Agent** (Zoho Agent Studio) through a Catalyst **Connection**; sign-in through Catalyst **Authentication**.
 
 ---
@@ -23,6 +23,16 @@
 | **Insights** | 7-day patterns: average calories and protein, consistency, most frequent foods, and one concrete thing to change. Shown once there are 3 days of data. |
 | **History** | Day and week views of everything logged. |
 | **Honest labels** | Every item shows whether it's an **AI estimate** (Zia's guess, reviewed but unchanged) or **edited / added by you**. Exports carry the same label. |
+| **Smart confirmation** | When Zia is unsure about something that moves the calories (2 or 3 idlis? plain or ghee roast?), it asks up to two one-tap questions, each answer carrying Zia's own recalculated values. |
+| **Personal food memory** | When you correct what a dish is (not just how many), ZiaSnap remembers it and applies your version the next time Zia sees that dish, labelled "Remembered from your edit". |
+| **Quick log** | Type or say a meal ("2 idli, sambar and coffee"), repeat yesterday's breakfast, or log a saved favourite in one tap, with Undo. |
+| **Water and streaks** | A light water tracker (goal from your weight) and a gentle logging streak, with no guilt messaging. |
+| **Weight trend** | Log your weight; a smoothed trend line and an estimated date for reaching your target at your current pace. |
+| **Zia meal planner** | The ZiaSnap Coach agent plans your next meal from what's left today and what you actually eat. |
+| **Eating-out mode** | Photograph a restaurant menu and Zia picks the dishes that fit your day, with ordering tips. |
+| **Weekly coach recap** | Every Sunday a scheduled job has Zia write a short recap with one win and one concrete change. |
+| **Indian-first modes** | Navratri, Ekadashi and Ramadan modes switch suggestions to vrat-friendly or suhoor/iftar food for the mode's usual length. |
+| **Installable, works offline** | Add to home screen. Meals, water and weight logged offline are saved on the phone and sync when you reconnect. |
 | **Privacy** | Export everything (JSON) or the meal log (CSV); delete the account permanently. Meal photos are sent to Zia for analysis and **never stored**. |
 
 ## 2. Architecture
@@ -36,8 +46,14 @@ Browser (Next.js on Slate, ziasnap.onslate.com)
 ziasnap-api  (Catalyst Advanced I/O function, Node 22, TypeScript bundled by esbuild)
   ├── requireAccount() ── Catalyst Authentication (user scope)
   ├── CatalystNutritionRepository ── Data Store (admin scope, every query filtered by UserId)
-  └── Zia client ── Catalyst Connection "agents" ── Zia Agent "ZiaSnap Meal Analyzer" (gpt-4o vision)
+  └── Zia client ── Catalyst Connection "agents" ─┬─ Zia Agent "ZiaSnap Meal Analyzer" (vision, smart confirmation)
+                                                  └─ Zia Agent "ZiaSnap Coach" (planner, menu picks, weekly recap)
+
+ziasnap-weekly-coach  (Catalyst Job function, Sundays 18:00 IST via Job Scheduling)
+  └── for each user who logged that week: Coach recap → CoachReports (+ email when a sender is configured)
 ```
+
+**Zoho-hosted models only.** Both agents run on Zoho's own `zlabs-qwen35-122B` thinking model through the `zoho-llm` ZKS configuration; no third-party LLM vendor is used.
 
 **Shared domain logic.** The frontend and the function share one `NutritionRepository` interface and the same pure modules (goal calculator, daily summaries, insights, recommendations). esbuild bundles that shared code into the function, so both sides compute targets and insights identically.
 
@@ -68,6 +84,14 @@ Every route except `/health` and `/guest/*` requires a signed-in Catalyst app us
 | `GET /meal/analyze/:token` | Poll analysis | Result: `{ detectedItems: FoodItem[], overallConfidence, notes }` |
 | `POST /meal/confirm` | Save a reviewed meal | Body: `type`, `source`, `items`, `notes?`, `analysisId?`, `loggedAt`, `dateKey` |
 | `GET` / `PATCH` / `DELETE /meal/:id` | Read, edit or delete one meal | Owner-checked |
+| `GET` / `POST /water`, `DELETE /water/:id` | Water for a day; add or undo a glass | |
+| `GET` / `POST /weight`, `DELETE /weight/:id` | Weight trend and projection; log today's weight | One reading per day |
+| `GET` / `POST /favorites`, `DELETE /favorites/:id` | Saved favourite meals | Up to 30 |
+| `GET /streak?date=` | Logging streak | |
+| `POST /coach/{plan,menu,weekly}` | Start a Coach task | Context is built server-side from the user's data; menu takes `imageDataUrl` |
+| `GET /coach/{task}/:token` | Poll a Coach task | Weekly recaps are stored when done |
+| `GET /coach/weekly/latest` | Latest stored recap | |
+| `POST /guest/coach/{task}`, `GET /guest/coach/{task}/:token` | Coach for the public demo | Public, rate-limited, context sent by the browser, nothing stored |
 | `GET /export` | Everything the user has stored | JSON; the app also renders a CSV |
 | `DELETE /account` | Delete all data and the sign-in | Irreversible |
 
@@ -82,8 +106,11 @@ All tables are GLOBAL scope and reached only through the function's admin scope.
 | `UserProfile` | `UserId` (unique), name, age, sex, height, weights, `Goal`, `ActivityLevel`, `PreferencesJson`, `TargetsJson`, `OnboardingCompletedAt` |
 | `Meals` | `UserId`, `DateKey`, `MealType`, `Source`, `LoggedAt`, `ConfirmedAt`, `AnalysisId`, totals (`Calories`, `ProteinG`, `CarbsG`, `FatG`, `FiberG`) |
 | `MealItems` | `UserId`, `MealId`, `Position`, `Name`, `Confidence`, `IsEdited`, `IsUserAdded`, `Calories`, `ItemJson` (the full FoodItem) |
-| `FoodCorrections` | Items the user corrected, kept for a planned "personal food memory" feature |
-| `WeightLogs`, `WaterLogs`, `Favorites` | Created for upcoming features; included in export and deletion |
+| `FoodCorrections` | Personal food memory: latest correction per detected dish name |
+| `WeightLogs` | One reading per day |
+| `WaterLogs` | Each glass or bottle logged |
+| `Favorites` | Saved meals for one-tap logging |
+| `CoachReports` | One weekly recap per user per week |
 
 ## 5. Setup and deployment
 
@@ -118,7 +145,8 @@ Sign-in only works locally under `catalyst serve`; the plain Next.js dev server 
 
 ## 7. Known limits and what's next
 
-- Analysis takes about 30 s end to end, almost all of it the vision model.
+- Photo analysis takes about 25 to 30 s end to end and Coach answers 13 to 20 s, almost all of it the Zoho model; the app starts work in the background and polls, so no request hits the 30 s function limit.
+- Weekly recap emails need a verified Catalyst sender (`RECAP_FROM_EMAIL`); until one is configured, recaps appear in the app only.
 - Only email sign-in is enabled today; adding Zoho as a sign-in provider is pending.
 - Runs in the Catalyst Development environment; Production promotion is pending.
-- Planned: smart confirmation questions for low-confidence items ("fried or steamed?"), personal food memory from corrections, quick re-logging and favourites, weight trend and goal projection, agent-written meal plans, a weekly coach summary, restaurant-menu mode, festival and fasting modes, and an installable PWA.
+- Fasting modes change suggestions but deliberately not calorie targets, and remind users to check with a doctor if they have a medical condition.
